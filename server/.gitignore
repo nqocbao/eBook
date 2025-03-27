@@ -1,0 +1,44 @@
+# Thư mục và file hệ thống
+.DS_Store
+Thumbs.db
+
+# Thư mục dependencies
+node_modules/
+dist/
+
+# File environment (chứa thông tin nhạy cảm)
+.env
+.env.local
+.env.development
+.env.production
+
+# Log files
+*.log
+logs/
+
+# IDE/Editor settings
+.vscode/
+.idea/
+
+# Database related
+data/  # Thư mục chứa MongoDB local (nếu dùng)
+*.dump  # Backup database
+
+# File build/compiled
+*.exe
+*.out
+*.pid
+
+# macOS
+._*
+
+# Testing
+coverage/
+
+# Debug
+debug.log
+npm-debug.log*
+
+# Optional
+*.swp
+*.swo
