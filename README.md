@@ -17,6 +17,8 @@ Frontend: React Native (dành cho mobile) & Web (React)
 
 Backend: Express.js, MongoDB, Docker, Google Cloud
 
+Link ERD: https://dbdiagram.io/d/Screen-Reader-67e4ed854f7afba18464507f
+
 Các công cụ hỗ trợ: Speech-to-Text API, Text-to-Speech API, Translation API
 
 Cách sử dụng:
