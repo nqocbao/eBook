@@ -1,4 +1,5 @@
 Screen Reader for Visually Impaired
+
 Mô tả dự án
 Screen Reader là một ứng dụng hỗ trợ người khiếm thị, giúp họ tiếp cận thông tin trên màn hình qua các chức năng như text-to-speech, speech-to-text, và voice language translation. Mục tiêu của dự án là tạo ra một công cụ dễ sử dụng và hiệu quả giúp người khiếm thị có thể tương tác với các thiết bị kỹ thuật số một cách dễ dàng, phục vụ cho cả web và mobile (dùng React Native cho giao diện người dùng).
 
