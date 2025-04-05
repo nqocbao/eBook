@@ -1,4 +1,3 @@
-```markdown
 # eBook
 
 [![React Native](https://img.shields.io/badge/ReactNative-%2300256C.svg?style=for-the-badge&logo=react&logoColor=white)](https://reactnative.dev/)
@@ -67,7 +66,6 @@ eBook/
 └── README.md
 ```
 
----
 
 ## Hướng dẫn cài đặt 🛠️
 
