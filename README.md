@@ -110,13 +110,6 @@ eBook/
    yarn start
    ```
 
-6. **Cấu hình kết nối cơ sở dữ liệu** 🔗:
-   Tạo file `.env` trong thư mục `server` dựa trên file `.env.example` và thiết lập biến môi trường:
-   ```env
-   MONGODB_URI=your_mongodb_connection_string
-   PORT=5000
-   ```
-
 ---
 
 ## Hướng dẫn sử dụng
