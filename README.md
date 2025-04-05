@@ -12,60 +12,27 @@
 
 **eBook** là ứng dụng đọc sách báo điện tử dành cho người khiếm thị, cho phép tiếp cận tri thức thông qua việc chuyển đổi văn bản thành giọng nói và chữ nổi Braille. Ứng dụng tích hợp các tính năng điều hướng thông minh, ghi chú, đánh dấu nội dung, mô tả hình ảnh và hỗ trợ nội dung đa phương tiện. Với giao diện tùy chỉnh và đồng bộ hóa dữ liệu trên nhiều thiết bị, **eBook** hướng tới việc tạo ra một môi trường học tập số toàn diện, giúp người dùng tiếp cận và tương tác với tài liệu một cách độc lập và hiệu quả.
 
----
-
-## Tính năng nổi bật
-
-### 1. Chuyển đổi văn bản thành giọng nói (Text-to-Speech)
-- **Giọng đọc tùy chỉnh:** Cho phép điều chỉnh giọng đọc, tốc độ và cao độ để tạo ra trải nghiệm nghe tự nhiên.
-- **Chuyển đổi chất lượng cao:** Sử dụng API chuyển đổi văn bản thành giọng nói chuyên nghiệp đảm bảo độ chính xác và rõ ràng.
-
-### 2. Điều hướng nội dung thông minh
-- **Điều hướng theo cấu trúc:** Di chuyển nhanh qua các chương, đoạn, câu và trang giúp truy cập thông tin một cách trực tiếp.
-- **Tìm kiếm nội dung:** Tìm kiếm theo từ khóa giúp định vị nhanh các phần thông tin quan trọng.
-
-### 3. Ghi chú và đánh dấu nội dung
-- **Ghi chú đa phương thức:** Cho phép thêm ghi chú dạng văn bản hoặc ghi âm giọng nói trực tiếp vào nội dung.
-- **Bookmark:** Tạo và quản lý bookmark để lưu lại vị trí đọc và các đoạn văn bản quan trọng.
-
-### 4. Tùy chỉnh giao diện người dùng
-- **Cá nhân hóa giao diện:** Cho phép điều chỉnh kích thước chữ, màu nền, độ tương phản và kiểu chữ phù hợp với nhu cầu cá nhân.
-- **Responsive & Đồng bộ hóa:** Ứng dụng hoạt động mượt mà trên máy tính để bàn, smartphone, tablet và đồng bộ hóa dữ liệu qua đám mây.
+Link ERD: https://dbdiagram.io/d/eBook-67e4ed854f7afba18464507f
 
 ---
+## Môi Trường Phát Triển
 
-## Kiến trúc & Công nghệ sử dụng
+### 1. **Frontend**
 
-### Frontend
-- **React Native:** Xây dựng giao diện ứng dụng di động cho iOS và Android.
-- **Expo:** Nền tảng phát triển và triển khai ứng dụng React Native.
-- **TailwindCSS:** Tạo giao diện hiện đại, tối giản và dễ tùy chỉnh.
+- **URL**: `http://localhost:8081`
+- **Công Nghệ Sử Dụng**:
+  - React Native
+  - Expo
+  - TailwindCSS
 
-### Backend
-- **Express:** Framework Node.js cho xây dựng API linh hoạt và mạnh mẽ.
-- **MongoDB:** Cơ sở dữ liệu NoSQL lưu trữ dữ liệu người dùng, tiến trình đọc và ghi chú.
+### 2. **Backend**
+
+- **URL**: `http://localhost:5000`
+- **Công Nghệ Sử Dụng**:
+  - Express.js
+  - MongoDb
 
 ---
-
-## Cấu trúc dự án
-
-```plaintext
-eBook/
-├── client/                # Ứng dụng di động (React Native + Expo)
-│   ├── src/
-│   ├── App.js
-│   ├── package.json
-│   └── ...
-├── server/                # API backend (Express + MongoDB)
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── app.js
-│   ├── package.json
-│   └── .env.example
-└── README.md
-```
-
 
 ## Hướng dẫn cài đặt 🛠️
 
@@ -110,37 +77,74 @@ eBook/
    yarn start
    ```
 ---
-## :twisted_rightwards_arrows: Sử Dụng Nhánh (Branches) Trên GitHub
+## :twisted_rightwards_arrows: Cách làm việc nhóm 
 
-- **Tạo nhánh mới:**  
-  ```bash
-  git checkout -b my-feature
-  ```  
-  :sparkles: Tạo và chuyển sang nhánh `my-feature`.
+### 1. **Chiến Lược Branching**
 
-- **Commit thay đổi:**  
-  ```bash
-  git add .
-  git commit -m "Thêm tính năng X"
-  ```  
-  :memo: Lưu lại những thay đổi.
+Để tránh xung đột mã nguồn, các thành viên nên tuân thủ chiến lược **branching**:
 
-- **Đẩy nhánh lên GitHub:**  
-  ```bash
-  git push -u origin my-feature
-  ```  
-  :rocket: Đẩy nhánh `my-feature` lên remote.
+- **Nhánh Chính (`main`)**: Luôn chứa mã nguồn ổn định và sẵn sàng cho sản xuất. Không commit trực tiếp vào nhánh này.
+- **Nhánh Phát Triển (`dev`)**: Dùng để phát triển, các tính năng sẽ được merge vào sau khi review. Bảo sẽ là người review và merge. Không commit trực tiếp vào nhánh này.
+- **Nhánh Tính Năng**: Mỗi thành viên tạo một nhánh riêng khi làm việc trên một task cụ thể. Ví dụ:
+  - `feature/Search-Homesreen`
+  - `feature/admin-dashboard`
 
-- **Tạo Pull Request:**  
-  Truy cập GitHub, so sánh nhánh của bạn với `main` và mở Pull Request. :eyes:
+#### Các bước tạo và làm việc trên nhánh tính năng:
 
-- **Merge & Xóa nhánh:**  
-  Sau khi PR được duyệt, merge vào `main` và xóa nhánh:  
-  ```bash
-  git branch -d my-feature
-  ```  
-  :wastebasket: Xóa nhánh cục bộ sau khi merge.
+1. Lấy các thay đổi mới nhất từ nhánh `dev`:
+
+   ```bash
+   git checkout dev
+   git pull origin dev
+   ```
+
+2. Tạo một nhánh tính năng mới:
+
+   ```bash
+   git checkout -b feature/my-feature
+   ```
+
+3. Sau khi hoàn thành, commit và đẩy thay đổi lên:
+
+   ```bash
+   git add .
+   git commit -m "feat: implement feature X"
+   git push origin feature/my-feature
+   ```
+
+4. Nhắn Bảo để review và merge hoặc tạo pull request.
+
+### 2. **Quy Tắc Đặt Tên Commit**
+
+Sử dụng các thông báo commit rõ ràng và nhất quán:
+
+- **feat:** cho tính năng mới
+- **fix:** cho sửa lỗi
+- **refactor:** cho cấu trúc lại mã
+- **chore:** cho công việc liên quan đến build tools hoặc dependencies
+- **docs:** cho các thay đổi về tài liệu
+
+Ví dụ:
+
+```bash
+feat: Thêm Banner cho homescreen
+fix: Sửa lỗi không thể đọc được tiêu đề truyện
+```
+
+## Tài Liệu API
+
+Chúng ta sẽ có các API để xử lý thông tin truyện, đọc truyện báo, và chuyển đổi ngôn ngữ. 
+
+- Sử dụng **Postman** hoặc **Insomnia** để kiểm tra API.
+- Tài liệu API sẽ được bổ sung trong thư mục backend khi dự án tiến triển.
+
+### 3. **Quy Trình Code Review**
+
+- Mỗi pull request cần được review trước khi merge vào `main` hoặc `dev`.
+- Bảo sẽ là người chịu trách nhiệm merge.
+- Sử dụng **GitHub Issues** hoặc bình luận trên pull request để thảo luận (hoặc nhắn Messenger khi cần).
 ---
+
 
 ## Hướng dẫn sử dụng
 
@@ -151,12 +155,17 @@ Sau khi cài đặt, người dùng có thể:
 - Thêm ghi chú, đánh dấu và tạo bookmark cho các đoạn văn bản quan trọng nhằm hỗ trợ việc ôn tập.
 - Tùy chỉnh giao diện hiển thị theo sở thích cá nhân và đồng bộ hóa dữ liệu trên nhiều thiết bị.
 - Tra cứu từ điển và dịch thuật trực tiếp trong ứng dụng để hỗ trợ quá trình học tập.
-
 ---
+## :iphone: Cách chạy thử Ứng Dụng
 
-Nếu có bất kỳ thắc mắc hoặc góp ý nào, vui lòng liên hệ qua message:
+Nếu bạn muốn test ứng dụng, bạn có thể tải bản build trực tiếp trên App Store hoặc Google Play:
+
+[![App Store](https://img.shields.io/badge/App%20Store-Download-blue?style=for-the-badge&logo=apple)](https://apps.apple.com/) [![Google Play](https://img.shields.io/badge/Google%20Play-Download-green?style=for-the-badge&logo=google-play)](https://play.google.com/)
+
+Ngoài ra, bạn có thể test phiên bản phát triển qua Expo bằng cách quét mã QR khi chạy lệnh `expo start` từ terminal.
+
+Nếu có bất kỳ thắc mắc hoặc góp ý nào, vui lòng liên hệ qua message.
 
 ---
 
 **eBook** hướng tới mục tiêu tạo ra một công cụ hỗ trợ học tập số toàn diện, thân thiện và hiệu quả, giúp người khiếm thị tiếp cận tri thức một cách độc lập và tự chủ. Hãy cùng nhau đóng góp và phát triển dự án để xây dựng một môi trường số công bằng và tiện lợi cho tất cả mọi người!
-```
