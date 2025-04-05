@@ -109,7 +109,37 @@ eBook/
    # hoặc
    yarn start
    ```
+---
+## :twisted_rightwards_arrows: Sử Dụng Nhánh (Branches) Trên GitHub
 
+- **Tạo nhánh mới:**  
+  ```bash
+  git checkout -b my-feature
+  ```  
+  :sparkles: Tạo và chuyển sang nhánh `my-feature`.
+
+- **Commit thay đổi:**  
+  ```bash
+  git add .
+  git commit -m "Thêm tính năng X"
+  ```  
+  :memo: Lưu lại những thay đổi.
+
+- **Đẩy nhánh lên GitHub:**  
+  ```bash
+  git push -u origin my-feature
+  ```  
+  :rocket: Đẩy nhánh `my-feature` lên remote.
+
+- **Tạo Pull Request:**  
+  Truy cập GitHub, so sánh nhánh của bạn với `main` và mở Pull Request. :eyes:
+
+- **Merge & Xóa nhánh:**  
+  Sau khi PR được duyệt, merge vào `main` và xóa nhánh:  
+  ```bash
+  git branch -d my-feature
+  ```  
+  :wastebasket: Xóa nhánh cục bộ sau khi merge.
 ---
 
 ## Hướng dẫn sử dụng
