@@ -24,7 +24,7 @@ const bookSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-      category: {
+      category_id: {
         type: String,
         required: true,
       },

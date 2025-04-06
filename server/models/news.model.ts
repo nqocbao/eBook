@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const bookSchema = new mongoose.Schema(
+const newsSchema = new mongoose.Schema(
     {
       title: {
         type: String,
@@ -12,10 +12,6 @@ const bookSchema = new mongoose.Schema(
         required: true,
         trim: true,
       },
-      description: {
-        type: String,
-        required: true,
-      },
       thumbnail: {
         type: String,
         required: true,
@@ -24,7 +20,7 @@ const bookSchema = new mongoose.Schema(
         type: Text,
         required: true,
       },
-      category: {
+      category_id: {
         type: String,
         required: true,
       },
@@ -38,6 +34,6 @@ const bookSchema = new mongoose.Schema(
     },
   )
 
-const Book = mongoose.model('Book', bookSchema, "books");
+const News = mongoose.model('News', newsSchema, "news");
 
-export default Book;
+export default News;
