@@ -1,74 +1,85 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+"use client";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+import axios from "axios";
+import { useTailwind } from "tailwind-rn";
+
+// import { API_URL } from "@/constants/api"
+// import BookCard from "@/components/BookCard"
+// import NewsCard from "@/components/NewsCard"
+// import { useTTS } from "@/hooks/useTTS"
 
 export default function HomeScreen() {
+  const [loading, setLoading] = useState(true);
+  const tw = useTailwind();
+
+  if (loading) {
+    return (
+      <View style={tw("flex-1 justify-center items-center bg-gray-100")}>
+        <ActivityIndicator size="large" color="#0284c7" />
+        <Text style={tw("mt-4 text-blue-700")}>Loading content...</Text>
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView style={tw("flex-1 bg-gray-100")}>
+      <View
+        style={tw("flex-row justify-between items-center px-4 py-3 bg-sky-700")}
+      >
+        <Text style={tw("text-2xl font-bold text-white")}>eBook Reader</Text>
+        <TouchableOpacity
+          accessibilityLabel="Voice assistance"
+          accessibilityHint="Activates voice guidance for navigation"
+        >
+          <Feather name="volume-2" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView style={tw("flex-1 px-4 py-6")}>
+        <View style={tw("mb-8")}>
+          <View style={tw("flex-row justify-between items-center mb-4")}>
+            <Text style={tw("text-xl font-bold text-gray-800")}>
+              Featured Books
+            </Text>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={tw("space-x-4")}
+          ></ScrollView>
+        </View>
+
+        <View>
+          <View style={tw("flex-row justify-between items-center mb-4")}>
+            <Text style={tw("text-xl font-bold text-gray-800")}>
+              Latest News
+            </Text>
+            <TouchableOpacity
+              accessibilityLabel="View all news"
+              accessibilityHint="Navigate to the news screen"
+            >
+              <Text style={tw("text-sky-600")}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={tw("space-y-4")}></View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+function useTailWind() {
+  throw new Error("Function not implemented.");
+}
