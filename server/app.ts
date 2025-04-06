@@ -5,7 +5,7 @@ import cors from "cors";
 dotenv.config();
 
 import { connectDatabase } from "./config/database";
-// import { routesClient } from "./routes/client/index.route";
+import { routesClient } from "./routes/client/index.route";
 
 connectDatabase();
 
@@ -26,7 +26,7 @@ app.use(cors());
 // parse application/json
 app.use(bodyParser.json());
 
-// routesClient(app);
+routesClient(app);
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);

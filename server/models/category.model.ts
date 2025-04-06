@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 const categorySchema = new mongoose.Schema({
     title: String,
     description: String,
-    thumbnail: String,
+    type: {
+        type: String,
+        enum: ["book", "news", "both"],
+        default: "both",
+    },
 }, {
     timestamps: true
 });
