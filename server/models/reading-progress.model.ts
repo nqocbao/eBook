@@ -6,7 +6,11 @@ const ReadingProgressSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    book_id: {
+    doc_id: {
+      type: String,
+      required: true
+    },
+    doc_type: {
       type: String,
       required: true
     },

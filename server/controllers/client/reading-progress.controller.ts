@@ -1,12 +1,13 @@
-import News from "../../models/news.model";
 import { Request, Response } from "express";
+import Book from "../../models/book.model";
 import Category from "../../models/category.model";
+import Favorite from "../../models/favorite.model";
+import ReadingProgress from "../../models/reading-progress.model";
 
-
-// [GET] /news
+// [GET] /tasks
 export const index = async (req: Request, res: Response) => {
     const find = {
-        isPublished: true
+        isPublished: false
     };
 
     // Tìm kiếm
@@ -41,45 +42,45 @@ export const index = async (req: Request, res: Response) => {
     const skip: number = (page - 1) * limitItems;
     // Hết phân trang
     
-    const news = await News
+    const books = await Book
     .find(find)
     .limit(limitItems)
     .skip(skip)
     .sort(sort);
 
-    res.json(news);
+    res.json(books);
 }
 
-// [GET] /news/detail/:id
+// [GET] /tasks/detail/:id
 export const detail = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
 
-        const news = await News.findOne({
+        const book = await Book.findOne({
             _id: id,
-            isPublished: true
+            isPublished: false
         });
 
-        const categoryOfNews = await Category.findOne({
-            _id: news.category_id
+        const categoryOfBook = await Category.findOne({
+            _id: book.category_id
         }).select("title type");
 
-        if (!news) {
-            res.json("Không tồn tại báo cần tìm!");
+        if (!book) {
+            res.json("Không tồn tại sách cần tìm!");
         }
 
-        if (!categoryOfNews) {
-            res.json("Không tồn tại thể loại báo");
+        if (!categoryOfBook) {
+            res.json("Không tồn tại thể loại sách");
         }
 
         res.json({
-            news: news,
-            categoryOfNews: categoryOfNews
+            book: book,
+            categoryOfBook: categoryOfBook
         });
     } catch (error) {
         console.log(error);
         res.json({
-            message: "Lỗi tìm báo",
+            message: "Lỗi tìm phim",
             error: error
         });
     }

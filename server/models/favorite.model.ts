@@ -9,6 +9,10 @@ const FavoriteSchema = new mongoose.Schema(
         doc_id: {
             type: String,
             required: true
+        },
+        doc_type: {
+            type: String,
+            required: true
         }
     },
     {

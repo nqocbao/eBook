@@ -5,7 +5,7 @@ import Category from "../../models/category.model";
 // [GET] /tasks
 export const index = async (req: Request, res: Response) => {
     const find = {
-        isPublished: false
+        isPublished: true
     };
 
     // Tìm kiếm
@@ -56,7 +56,7 @@ export const detail = async (req: Request, res: Response) => {
 
         const book = await Book.findOne({
             _id: id,
-            isPublished: false
+            isPublished: true
         });
 
         const categoryOfBook = await Category.findOne({

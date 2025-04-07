@@ -17,7 +17,7 @@ const newsSchema = new mongoose.Schema(
         required: true,
       },
       content: {
-        type: Text,
+        type: String,
         required: true,
       },
       category_id: {
