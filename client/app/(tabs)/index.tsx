@@ -69,7 +69,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Thanh chọn chuyên mục ở ngay dưới header */}
-      <ScrollView
+      {/* <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={tw("flex px-4 mb-2 h-10")}
@@ -90,14 +90,14 @@ export default function HomeScreen() {
             <Text style={tw("text-gray-700 font-semibold")}>{cat.title}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </ScrollView> */}
 
       {/* Khu vực nội dung chính */}
       <ScrollView style={tw("flex-1")} showsVerticalScrollIndicator={false}>
         {/* Khối "Mới xuất bản" hoặc "Nổi bật" */}
         <View style={tw("px-4 mt-2")}>
           <Text style={tw("text-lg font-bold text-gray-800 mb-2")}>
-            Mới xuất bản
+            New Releases
           </Text>
 
           {/* Ví dụ 1 cuốn sách nổi bật ở giữa */}
