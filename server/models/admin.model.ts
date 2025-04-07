@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const adminSchema = new mongoose.Schema({
     fullName: String,
@@ -19,6 +19,5 @@ const adminSchema = new mongoose.Schema({
     timestamps: true // Tu dong them truong createAt va updateAt
 });
 
-const Admin = mongoose.model('Admin', adminSchema,"admins");
-
-module.exports = Admin;
+const Admin = mongoose.model('Admin', adminSchema, "admins");
+export default Admin;
