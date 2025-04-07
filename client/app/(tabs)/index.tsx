@@ -1,85 +1,163 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
+  Image,
+  SafeAreaView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import axios from "axios";
 import { useTailwind } from "tailwind-rn";
 
-// import { API_URL } from "@/constants/api"
-// import BookCard from "@/components/BookCard"
-// import NewsCard from "@/components/NewsCard"
-// import { useTTS } from "@/hooks/useTTS"
-
 export default function HomeScreen() {
-  const [loading, setLoading] = useState(true);
   const tw = useTailwind();
 
-  if (loading) {
-    return (
-      <View style={tw("flex-1 justify-center items-center bg-gray-100")}>
-        <ActivityIndicator size="large" color="#0284c7" />
-        <Text style={tw("mt-4 text-blue-700")}>Loading content...</Text>
-      </View>
-    );
-  }
+  // Danh sách chuyên mục (có thể load động từ API)
+  const categories = [
+    { id: 1, title: "All", name: "align-justify" },
+    { id: 2, title: "Drama", name: "refresh-cw" },
+    { id: 3, title: "Fantasy", name: "" },
+    { id: 4, title: "Comedy", name: "" },
+    { id: 5, title: "Other", name: "" },
+  ];
+
+  // Danh sách gợi ý (có thể load động từ API)
+  const recommended = [
+    {
+      id: 1,
+      title: "48 Nguyên Tắc Chủ Chốt Của Quyền Lực",
+      author: "Robert Greene",
+      cover: "https://picsum.photos/200/300", // ảnh minh họa
+    },
+    {
+      id: 2,
+      title: "Tư Duy Nhanh Và Chậm",
+      author: "Daniel Kahneman",
+      cover: "https://picsum.photos/200/300?random=1",
+    },
+    {
+      id: 3,
+      title: "Sapiens: Lược Sử Loài Người",
+      author: "Yuval Noah Harari",
+      cover: "https://picsum.photos/200/300?random=2",
+    },
+  ];
 
   return (
-    <SafeAreaView style={tw("flex-1 bg-gray-100")}>
-      <View
-        style={tw("flex-row justify-between items-center px-4 py-3 bg-sky-700")}
-      >
-        <Text style={tw("text-2xl font-bold text-white")}>eBook Reader</Text>
-        <TouchableOpacity
-          accessibilityLabel="Voice assistance"
-          accessibilityHint="Activates voice guidance for navigation"
-        >
-          <Feather name="volume-2" size={24} color="white" />
-        </TouchableOpacity>
+    <SafeAreaView style={tw("flex-1 bg-white")}>
+      {/* Thanh header trên cùng */}
+      <View style={tw("flex-row justify-between items-center px-4 py-3")}>
+        <View style={tw("flex-row items-center")}>
+          <Feather name="book-open" size={28} color="#EF4444" />
+          <Text style={tw("ml-2 text-xl font-bold text-gray-800")}>
+            eBook Reader
+          </Text>
+        </View>
+
+        {/* Nút tìm kiếm, tài khoản hoặc thông báo... tuỳ ý */}
+        <View style={tw("flex-row items-center")}>
+          <TouchableOpacity style={tw("mr-4")}>
+            <Feather name="search" size={24} color="gray" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Feather name="bell" size={24} color="gray" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <ScrollView style={tw("flex-1 px-4 py-6")}>
-        <View style={tw("mb-8")}>
-          <View style={tw("flex-row justify-between items-center mb-4")}>
-            <Text style={tw("text-xl font-bold text-gray-800")}>
-              Featured Books
-            </Text>
-          </View>
+      {/* Thanh chọn chuyên mục ở ngay dưới header */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={tw("flex px-4 mb-2 h-10")}
+      >
+        {categories.map((cat) => (
+          <TouchableOpacity
+            key={cat.id}
+            style={tw(
+              "mr-2 px-4 py-1.5 rounded-full bg-gray-200 items-center justify-center"
+            )}
+          >
+            <Feather
+              name={cat.name}
+              size={20}
+              color="gray"
+              style={tw("mr-1")}
+            />
+            <Text style={tw("text-gray-700 font-semibold")}>{cat.title}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={tw("space-x-4")}
-          ></ScrollView>
+      {/* Khu vực nội dung chính */}
+      <ScrollView style={tw("flex-1")} showsVerticalScrollIndicator={false}>
+        {/* Khối "Mới xuất bản" hoặc "Nổi bật" */}
+        <View style={tw("px-4 mt-2")}>
+          <Text style={tw("text-lg font-bold text-gray-800 mb-2")}>
+            Mới xuất bản
+          </Text>
+
+          {/* Ví dụ 1 cuốn sách nổi bật ở giữa */}
+          <View style={tw("bg-white rounded-lg overflow-hidden mb-4")}>
+            <Image
+              source={{ uri: "https://picsum.photos/400/600" }}
+              style={tw("w-full h-56")}
+              resizeMode="cover"
+            />
+            <View style={tw("p-3")}>
+              <Text style={tw("text-base font-bold text-gray-800 mb-1")}>
+                48 Nguyên Tắc Chủ Chốt Của Quyền Lực
+              </Text>
+              <Text style={tw("text-sm text-gray-500 mb-2")}>
+                Robert Greene
+              </Text>
+              <TouchableOpacity
+                style={tw("bg-sky-600 rounded-md px-4 py-2")}
+                onPress={() => console.log("Xem chi tiết sách...")}
+              >
+                <Text style={tw("text-white text-center font-semibold")}>
+                  Nghe thử
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
-        <View>
-          <View style={tw("flex-row justify-between items-center mb-4")}>
-            <Text style={tw("text-xl font-bold text-gray-800")}>
-              Latest News
-            </Text>
-            <TouchableOpacity
-              accessibilityLabel="View all news"
-              accessibilityHint="Navigate to the news screen"
-            >
-              <Text style={tw("text-sky-600")}>View All</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Danh sách đề xuất: "Tuyệt Cho Lần Nghe Đầu", "Có Thể Bạn Quan Tâm", ... */}
+        <View style={tw("px-4 mt-2")}>
+          <Text style={tw("text-lg font-bold text-gray-800 mb-2")}>
+            Tuyệt Cho Lần Nghe Đầu
+          </Text>
 
-          <View style={tw("space-y-4")}></View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {recommended.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={tw("mr-4 w-36")}
+                onPress={() => console.log("Xem chi tiết sách:", item.title)}
+              >
+                <View style={tw("bg-white rounded-lg overflow-hidden mb-2")}>
+                  <Image
+                    source={{ uri: item.cover }}
+                    style={tw("w-36 h-52")}
+                    resizeMode="cover"
+                  />
+                </View>
+                <Text style={tw("text-sm font-semibold text-gray-800")}>
+                  {item.title}
+                </Text>
+                <Text style={tw("text-xs text-gray-500")}>{item.author}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
+
+        {/* Khoảng trống để tránh bị che khuất bởi thanh tab bar (nếu có) */}
+        <View style={tw("h-20")} />
       </ScrollView>
     </SafeAreaView>
   );
-}
-function useTailWind() {
-  throw new Error("Function not implemented.");
 }

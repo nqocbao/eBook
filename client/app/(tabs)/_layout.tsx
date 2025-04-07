@@ -1,15 +1,18 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useTailwind } from "tailwind-rn";
+import { Feather } from "@expo/vector-icons";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const tw = useTailwind();
 
   return (
     <Tabs
@@ -30,9 +33,11 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Explore",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <View style={{ alignItems: "center" }}>
+              <Feather size={20} name="external-link" color={color} />
+            </View>
           ),
         }}
       />
@@ -41,16 +46,16 @@ export default function TabLayout() {
         options={{
           title: "News",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="book.fill" color={color} />
+            <Feather size={20} name="coffee" color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="LibraryScreen"
         options={{
-          title: "Library",
+          title: "Favourite",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="book.fill" color={color} />
+            <Feather size={20} name="star" color={color} />
           ),
         }}
       />
@@ -59,7 +64,7 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="gearshape.fill" color={color} />
+            <Feather size={20} name="bell" color={color} />
           ),
         }}
       />
