@@ -1,26 +1,30 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
+require('dotenv').config();
 const morgan = require("morgan");
+const bodyParser = require("body-parser");
 
-// Load env vars
-dotenv.config({ path: "./.env" });
+// Kết nối DB
+
+const database = require('./config/database');
+database.connect();
+
 
 // Khởi tạo app
 const app = express();
 
 // Middleware
 app.use(express.json());
+
 app.use(cors());
+
+//Body-Parser
+app.use(bodyParser.json());
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// Kết nối DB
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // Routes (sẽ thêm sau)
 app.get("/", (req, res) => {
