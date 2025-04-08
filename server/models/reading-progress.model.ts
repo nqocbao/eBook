@@ -19,10 +19,6 @@ const ReadingProgressSchema = new mongoose.Schema(
       default: 0
     },
     lastReadAt: Date,
-    completionPercentage: {
-      type: Number,
-      default: 0
-    },
   },
   {
     timestamps: true

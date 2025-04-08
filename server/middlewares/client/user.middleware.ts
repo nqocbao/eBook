@@ -21,13 +21,13 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         return;
     }
 
-    if (JWT.isTokenExpired(token)) {
-        res.json({
-            message: "Người dùng hết phiên đăng nhập",
-            success: false
-        });
-        return;
-    }
+    // if (JWT.isTokenExpired(token)) {
+    //     res.json({
+    //         message: "Người dùng hết phiên đăng nhập",
+    //         success: false
+    //     });
+    //     return;
+    // }
 
     const user = await User.findOne({
         token: token
