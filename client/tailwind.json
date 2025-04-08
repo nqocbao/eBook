@@ -1,4 +1,9 @@
 {
+	"static": {
+		"style": {
+			"position": "static"
+		}
+	},
 	"absolute": {
 		"style": {
 			"position": "absolute"
