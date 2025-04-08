@@ -1,11 +1,13 @@
-import Book from "../../models/book.model";
 import { Request, Response } from "express";
+import Book from "../../models/book.model";
 import Category from "../../models/category.model";
+import Favorite from "../../models/favorite.model";
+import ReadingProgress from "../../models/reading-progress.model";
 
 // [GET] /tasks
 export const index = async (req: Request, res: Response) => {
     const find = {
-        isPublished: true
+        isPublished: false
     };
 
     // Tìm kiếm
@@ -56,7 +58,7 @@ export const detail = async (req: Request, res: Response) => {
 
         const book = await Book.findOne({
             _id: id,
-            isPublished: true
+            isPublished: false
         });
 
         const categoryOfBook = await Category.findOne({

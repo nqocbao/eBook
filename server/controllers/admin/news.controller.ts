@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
+import News from "../../models/news.model";
 import Category from "../../models/category.model";
 
-//[GET] categories/index
+//[GET] /news/index
 export const index = async (req: Request, res: Response) => {
     const find = {
-        delete: false
+        isPublished: true
     };
 
     // Tìm kiếm
@@ -39,89 +40,102 @@ export const index = async (req: Request, res: Response) => {
     const skip: number = (page - 1) * limitItems;
     // Hết phân trang
     
-    const categories = await Category
+    const news = await News
     .find(find)
     .limit(limitItems)
     .skip(skip)
     .sort(sort);
 
-    res.json(categories);
+    res.json(news);
 }
 
-//[GET] categories/detail/:id
+//[GET] /detail/:id
 export const detail = async (req: Request, res: Response) => {
     try {
             const id = req.params.id;
     
-            const category = await Category.findOne({
+            const news = await News.findOne({
                 _id: id,
-                deleted: false
+                isPublished: true
             });
     
+            const categoryOfNew = await Category.findOne({
+                _id: news.category_id
+            }).select("title type");
+    
+            if (!news) {
+                res.json("Không tồn tại báo cần tìm!");
+            }
+    
+            if (!categoryOfNew) {
+                res.json("Không tồn tại thể loại báo");
+            }
+    
             res.json({
-                category: category
+                new: news,
+                categoryOfNew: categoryOfNew
             });
         } catch (error) {
             console.log(error);
             res.json({
-                message: "Lỗi tìm loại",
+                message: "Lỗi tìm báo",
                 error: error
             });
         }
 }
 
-//[PATCH] categories/create
+//[PATCH] news/create
 export const create = async (req: Request, res: Response) => {
     try {
-        const newCategory = new Category(req.body);
-        await newCategory.save();
+        const newNew = new News(req.body);
+        await newNew.save();
         
         res.json({
-            message: "Tạo phân loại mới thành công",
-            newCategory: newCategory
+            message: "Tạo báo mới thành công",
+            newNew: newNew
         });
     } catch(error) {
         res.json({
-            message: "Tạo phân loại không thành công",
+            message: "Tạo báo mới không thành công",
         });
     }
 }
-//[PATCH] categories/edit
+//[PATCH] news/edit
 export const edit = async (req: Request, res: Response) => {
     try {
         const id: string = req.params.id;
         const data = req.body;
-        await Category.updateOne({
+        await News.updateOne({
             _id: id
         } ,data);
         res.json({
-            message: "Cập nhật phân loại thành công!"
+            message: "Cập nhật báo thành công!"
         });
     } catch(error) {
         res.json({
-            message: "Không tìm thấy phân loại!"
+            message: "Không tìm thấy báo!"
         });
     }
 }
 
-//[PATCH] categories/deleteCategories
-export const deleteCategories = async (req: Request, res: Response) => {
+//[PATCH] news/deleteNew
+export const deleteNew = async (req: Request, res: Response) => {
     try {
         const ids: string[] = req.body.ids;
         
-        await Category.updateMany({
+        await News.updateMany({
             _id: { $in: ids }
         }, {
-            deleted: true
+            isPublished: false
         })
         
         res.json({
-            message: "Xóa phân loại thành công"
+            message: "Xóa báobáo thành công"
         });
   
     } catch(error) {
         res.json({
-            message: "Không tìm thấy phân loại"
+            message: "Không tìm thấy báo"
         });
     }
 }

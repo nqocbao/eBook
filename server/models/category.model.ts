@@ -8,6 +8,10 @@ const categorySchema = new mongoose.Schema({
         enum: ["book", "news", "both"],
         default: "both",
     },
+    deleted: {
+        type: Boolean,
+        default: false
+    },
 }, {
     timestamps: true
 });
