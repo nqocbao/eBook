@@ -1,7 +1,7 @@
 import { Express } from "express";
 import { bookRoute } from "../admin/book.route";
 import { newsRoute } from "../admin/news.route";
-import { adminRoute } from "../admin/admin.route";
+import { adminRoute } from "./admin.route";
 import { favoriteRoute } from "../admin/favorite.route";
 import { readingProgressRoute } from "../admin/reading-progress.route";
 import { categoriesRoute } from "../admin/category.route";

@@ -8,9 +8,6 @@ const adminSchema = new mongoose.Schema({
     token: String, //ma bao mat
     avatar: String,
     status: String,
-    createdBy : String,
-    updatedBy : String,
-    deletedBy : String,
     deleted: {
         type: Boolean,
         default: false
