@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -24,7 +24,8 @@ app.use(cors());
 // End CORS
 
 // parse application/json
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+app.use(express.json());
 
 routesClient(app);
 
