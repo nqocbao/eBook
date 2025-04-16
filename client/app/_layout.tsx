@@ -9,10 +9,10 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { TailwindProvider } from "tailwind-rn";
-import utilities from "../tailwind.json";
+import "../global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -35,13 +35,13 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <TailwindProvider utilities={utilities}>
+      <GluestackUIProvider mode={colorScheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
         <StatusBar style="auto" />
-      </TailwindProvider>
+      </GluestackUIProvider>
     </ThemeProvider>
   );
 }

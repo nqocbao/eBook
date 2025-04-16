@@ -3,25 +3,46 @@
 import React from "react";
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
   Image,
   SafeAreaView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useTailwind } from "tailwind-rn";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerBackdrop,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+} from "@/components/ui/drawer";
+import { Heading } from "@/components/ui/heading";
+import { Text } from "@/components/ui/text";
+import { Divider } from "@/components/ui/divider";
+import { Pressable } from "@/components/ui/pressable";
+import { Icon, PhoneIcon, StarIcon } from "@/components/ui/icon";
+import { User, Home, ShoppingCart, Wallet, LogOut } from "lucide-react-native";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallbackText,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { VStack } from "@/components/ui/vstack";
+import { HStack } from "@/components/ui/hstack";
 
 export default function HomeScreen() {
-  const tw = useTailwind();
-
+  const [showSideBar, setShowSideBar] = React.useState(false);
   // Danh sách chuyên mục (có thể load động từ API)
   const categories = [
-    { id: 1, title: "All", name: "align-justify" },
-    { id: 2, title: "Drama", name: "refresh-cw" },
-    { id: 3, title: "Fantasy", name: "" },
-    { id: 4, title: "Comedy", name: "" },
-    { id: 5, title: "Other", name: "" },
+    { id: 1, title: "All" },
+    { id: 2, title: "Drama" },
+    { id: 3, title: "Fantasy" },
+    { id: 4, title: "Comedy" },
+    { id: 5, title: "Other" },
   ];
 
   // Danh sách gợi ý (có thể load động từ API)
@@ -47,78 +68,170 @@ export default function HomeScreen() {
   ];
 
   return (
-    <SafeAreaView style={tw("flex-1 bg-white")}>
+    <SafeAreaView className="h-screen w-screen bg-white">
       {/* Thanh header trên cùng */}
-      <View style={tw("flex-row justify-between items-center px-4 py-3")}>
-        <View style={tw("flex-row items-center")}>
-          <Feather name="book-open" size={28} color="#EF4444" />
-          <Text style={tw("ml-2 text-xl font-bold text-gray-800")}>
-            eBook Reader
-          </Text>
-        </View>
+      <View className="flex-row justify-between items-center px-4 py-3">
+        <View className="flex-row items-center">
+          <Button
+            className="bg-primary w-10 items-center"
+            onPress={() => setShowSideBar(true)}
+          >
+            <Feather name="menu" size={28} />
+          </Button>
+          <Drawer
+            isOpen={showSideBar}
+            onClose={() => setShowSideBar(false)}
+            size="sm"
+            anchor="left"
+          >
+            <Pressable
+              onPress={() => {
+                console.log("Backdrop pressed, closing sidebar");
+                setShowSideBar(false);
+              }}
+              style={{
+                backgroundColor: "black",
+                opacity: 0.5,
+                position: "absolute",
+                inset: 0,
+                zIndex: 10,
+              }}
+            />
+            {/* <div
+              onClick={() => setShowSideBar(false)}
+              className="bg-black opacity-50 absolute inset-1/3 left-0 right-0 z-10"
+            /> */}
 
+            <DrawerContent className="w-1/2 md:w-1/4 h-screen">
+              <DrawerHeader className="block gap-2 py-5">
+                <HStack space="md" className="h-10 justify-center items-center">
+                  <Avatar className=" bg-indigo-600 rounded-full">
+                    <AvatarFallbackText className="text-white w-full">
+                      Ronald Richards
+                    </AvatarFallbackText>
+                    <AvatarBadge />
+                  </Avatar>
+                  <VStack>
+                    <Heading className="text-sm md:text-lg">
+                      Ronald Richards
+                    </Heading>
+                    <Text size="sm">User</Text>
+                  </VStack>
+                </HStack>
+              </DrawerHeader>
+              {/* <Divider className=" my-4" /> */}
+              <DrawerBody contentContainerClassName="gap-2">
+                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
+                  <Icon as={User} size="lg" className="text-typography-600" />
+                  <Text>My Profile</Text>
+                </Pressable>
+                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
+                  <Icon as={Home} size="lg" className="text-typography-600" />
+                  <Text>Saved Address</Text>
+                </Pressable>
+                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
+                  <Icon
+                    as={ShoppingCart}
+                    size="lg"
+                    className="text-typography-600"
+                  />
+                  <Text>Orders</Text>
+                </Pressable>
+                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
+                  <Icon as={Wallet} size="lg" className="text-typography-600" />
+                  <Text>Saved Cards</Text>
+                </Pressable>
+                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
+                  <Icon
+                    as={StarIcon}
+                    size="lg"
+                    className="text-typography-600"
+                  />
+                  <Text>Review App</Text>
+                </Pressable>
+                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
+                  <Icon
+                    as={PhoneIcon}
+                    size="lg"
+                    className="text-typography-600"
+                  />
+                  <Text>Contact Us</Text>
+                </Pressable>
+              </DrawerBody>
+              <DrawerFooter>
+                <Button
+                  className="w-full gap-2 mb-8"
+                  variant="outline"
+                  action="secondary"
+                >
+                  <ButtonText>Logout</ButtonText>
+                  <ButtonIcon as={LogOut} />
+                </Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+        </View>
+        {/* Logo */}
+        <View className="flex-row items-center">
+          <Feather name="book-open" size={28} color="#EF4444" />
+          <Text className="ml-2 text-xl font-bold text-gray-800">eBook</Text>
+        </View>
         {/* Nút tìm kiếm, tài khoản hoặc thông báo... tuỳ ý */}
-        <View style={tw("flex-row items-center")}>
-          <TouchableOpacity style={tw("mr-4")}>
+        <View className="flex-row items-center">
+          <TouchableOpacity className="mr-2">
             <Feather name="search" size={24} color="gray" />
           </TouchableOpacity>
           <TouchableOpacity>
             <Feather name="bell" size={24} color="gray" />
           </TouchableOpacity>
+          <TouchableOpacity>
+            <Image
+              source={{ uri: "https://picsum.photos/50" }} // ảnh đại diện
+              className="w-7 ml-3 h-7 rounded-full"
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* Thanh chọn chuyên mục ở ngay dưới header */}
+      {/* Thanh chọn chuyên mục ở ngay dưới header
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={tw("flex px-4 mb-2 h-10")}
+        className="block items-center px-4 mb-2 pb-0 w-full h-5"
       >
         {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat.id}
-            style={tw(
-              "mr-2 px-4 py-1.5 rounded-full bg-gray-200 items-center justify-center"
-            )}
-          >
-            <Feather
-              name={cat.name}
-              size={20}
-              color="gray"
-              style={tw("mr-1")}
-            />
-            <Text style={tw("text-gray-700 font-semibold")}>{cat.title}</Text>
-          </TouchableOpacity>
+          <Button className="w-20 h-8  mr-2 px-2 rounded-lg bg-gray-200 items-center justify-center">
+            <Text className="text-gray-700 font-semibold">{cat.title}</Text>
+          </Button>
         ))}
-      </ScrollView>
+      </ScrollView> */}
 
       {/* Khu vực nội dung chính */}
-      <ScrollView style={tw("flex-1")} showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Khối "Mới xuất bản" hoặc "Nổi bật" */}
-        <View style={tw("px-4 mt-2")}>
-          <Text style={tw("text-lg font-bold text-gray-800 mb-2")}>
-            Mới xuất bản
+        <View className="px-4 mt-2">
+          <Text className="text-lg font-bold text-gray-800 mb-2">
+            New Releases
           </Text>
 
           {/* Ví dụ 1 cuốn sách nổi bật ở giữa */}
-          <View style={tw("bg-white rounded-lg overflow-hidden mb-4")}>
+          <View className="bg-white rounded-lg overflow-hidden mb-4">
             <Image
               source={{ uri: "https://picsum.photos/400/600" }}
-              style={tw("w-full h-56")}
+              className="w-full h-56"
               resizeMode="cover"
             />
-            <View style={tw("p-3")}>
-              <Text style={tw("text-base font-bold text-gray-800 mb-1")}>
+            <View className="p-3">
+              <Text className="text-base font-bold text-gray-800 mb-1">
                 48 Nguyên Tắc Chủ Chốt Của Quyền Lực
               </Text>
-              <Text style={tw("text-sm text-gray-500 mb-2")}>
-                Robert Greene
-              </Text>
+              <Text className="text-sm text-gray-500 mb-2">Robert Greene</Text>
               <TouchableOpacity
-                style={tw("bg-sky-600 rounded-md px-4 py-2")}
+                className="bg-sky-600 rounded-md px-4 py-2"
                 onPress={() => console.log("Xem chi tiết sách...")}
               >
-                <Text style={tw("text-white text-center font-semibold")}>
+                <Text className="text-white text-center font-semibold">
                   Nghe thử
                 </Text>
               </TouchableOpacity>
@@ -127,8 +240,8 @@ export default function HomeScreen() {
         </View>
 
         {/* Danh sách đề xuất: "Tuyệt Cho Lần Nghe Đầu", "Có Thể Bạn Quan Tâm", ... */}
-        <View style={tw("px-4 mt-2")}>
-          <Text style={tw("text-lg font-bold text-gray-800 mb-2")}>
+        <View className="px-4 mt-2">
+          <Text className="text-lg font-bold text-gray-800 mb-2">
             Tuyệt Cho Lần Nghe Đầu
           </Text>
 
@@ -136,27 +249,27 @@ export default function HomeScreen() {
             {recommended.map((item) => (
               <TouchableOpacity
                 key={item.id}
-                style={tw("mr-4 w-36")}
+                className="mr-4 w-36"
                 onPress={() => console.log("Xem chi tiết sách:", item.title)}
               >
-                <View style={tw("bg-white rounded-lg overflow-hidden mb-2")}>
+                <View className="bg-white rounded-lg overflow-hidden mb-2">
                   <Image
                     source={{ uri: item.cover }}
-                    style={tw("w-36 h-52")}
+                    className="w-36 h-52"
                     resizeMode="cover"
                   />
                 </View>
-                <Text style={tw("text-sm font-semibold text-gray-800")}>
+                <Text className="text-sm font-semibold text-gray-800">
                   {item.title}
                 </Text>
-                <Text style={tw("text-xs text-gray-500")}>{item.author}</Text>
+                <Text className="text-xs text-gray-500">{item.author}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
         {/* Khoảng trống để tránh bị che khuất bởi thanh tab bar (nếu có) */}
-        <View style={tw("h-20")} />
+        <View className="h-20" />
       </ScrollView>
     </SafeAreaView>
   );

@@ -16,10 +16,8 @@ import axios from "axios";
 // import { API_URL } from "@/constants/api";
 // import NewsCard from "@/components/NewsCard";
 // import { useTTS } from "@/hooks/useTTS";
-import { useTailwind } from "tailwind-rn";
 
 export default function News() {
-  const tw = useTailwind();
   const [news, setNews] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -72,19 +70,17 @@ export default function News() {
 
   if (loading) {
     return (
-      <View style={tw("flex-1 justify-center items-center bg-gray-100")}>
+      <View className="flex-1 justify-center items-center bg-gray-100">
         <ActivityIndicator size="large" color="#0284c7" />
-        <Text style={tw("mt-4 text-gray-700")}>Loading news...</Text>
+        <Text className="mt-4 text-gray-700">Loading news...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={tw("flex-1 bg-gray-100")}>
-      <View
-        style={tw("flex-row justify-between items-center px-4 py-3 bg-sky-700")}
-      >
-        <Text style={tw("text-2xl font-bold text-white")}>News</Text>
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <View className="flex-row justify-between items-center px-4 py-3 bg-sky-700">
+        <Text className="text-2xl font-bold text-white">News</Text>
         <TouchableOpacity
           //   onPress={handleVoiceAssistance}
           accessibilityLabel="Voice assistance"
@@ -94,23 +90,21 @@ export default function News() {
         </TouchableOpacity>
       </View>
 
-      <View style={tw("px-4 py-3")}>
+      <View className="px-4 py-3">
         {/* <FlatList
           horizontal
           data={[{ id: "all", name: "All News" }, ...categories]}
           keyExtractor={(item) => item.id || item._id}
           showsHorizontalScrollIndicator={false}
-          style={tw("mb-4")}
+          className="mb-4"
           renderItem={({ item }) => (
             <TouchableOpacity
             //   onPress={() => handleCategorySelect(item.id || item._id)}
-              style={tw(
-                `mr-2 px-4 py-2 rounded-full ${
-                  selectedCategory === (item.id || item._id)
-                    ? "bg-sky-600"
-                    : "bg-gray-200"
-                }`
-              )}
+              className={`mr-2 px-4 py-2 rounded-full ${
+                selectedCategory === (item.id || item._id)
+                  ? "bg-sky-600"
+                  : "bg-gray-200"
+              }`}
               accessibilityLabel={item.name || item.title}
               accessibilityHint={`Select ${item.name || item.title} category`}
               accessibilityState={{
@@ -118,13 +112,11 @@ export default function News() {
               }}
             >
               <Text
-                style={tw(
-                  `${
-                    selectedCategory === (item.id || item._id)
-                      ? "text-white"
-                      : "text-gray-800"
-                  }`
-                )}
+                className={`${
+                  selectedCategory === (item.id || item._id)
+                    ? "text-white"
+                    : "text-gray-800"
+                }`}
               >
                 {item.name || item.title}
               </Text>
@@ -141,9 +133,9 @@ export default function News() {
         //   <NewsCard news={item} onPress={() => router.push(`/news/${item._id}`)} />
         // )}
         ListEmptyComponent={
-          <View style={tw("flex-1 justify-center items-center py-8")}>
+          <View className="flex-1 justify-center items-center py-8">
             <Feather name="file-text" size={48} color="gray" />
-            <Text style={tw("mt-4 text-gray-500 text-center")}>
+            <Text className="mt-4 text-gray-500 text-center">
               No news articles found in this category.
             </Text>
           </View>
