@@ -1,8 +1,9 @@
-import Book from "../../models/book.model";
+import News from "../../models/news.model";
 import { Request, Response } from "express";
 import Category from "../../models/category.model";
 
-// [GET] /tasks
+
+// [GET] /news
 export const index = async (req: Request, res: Response) => {
     const find = {
         isPublished: true
@@ -40,45 +41,45 @@ export const index = async (req: Request, res: Response) => {
     const skip: number = (page - 1) * limitItems;
     // Hết phân trang
     
-    const books = await Book
+    const news = await News
     .find(find)
     .limit(limitItems)
     .skip(skip)
     .sort(sort);
 
-    res.json(books);
+    res.json(news);
 }
 
-// [GET] /tasks/detail/:id
+// [GET] /news/detail/:id
 export const detail = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
 
-        const book = await Book.findOne({
+        const news = await News.findOne({
             _id: id,
             isPublished: true
         });
 
-        const categoryOfBook = await Category.findOne({
-            _id: book.category_id
+        const categoryOfNews = await Category.findOne({
+            _id: news.category_id
         }).select("title type");
 
-        if (!book) {
-            res.json("Không tồn tại sách cần tìm!");
+        if (!news) {
+            res.json("Không tồn tại báo cần tìm!");
         }
 
-        if (!categoryOfBook) {
-            res.json("Không tồn tại thể loại sách");
+        if (!categoryOfNews) {
+            res.json("Không tồn tại thể loại báo");
         }
 
         res.json({
-            book: book,
-            categoryOfBook: categoryOfBook
+            news: news,
+            categoryOfNews: categoryOfNews
         });
     } catch (error) {
         console.log(error);
         res.json({
-            message: "Lỗi tìm phim",
+            message: "Lỗi tìm báo",
             error: error
         });
     }
