@@ -1,156 +1,141 @@
 import { Tabs } from "expo-router";
-import React from "react";
-import { View, Platform, useWindowDimensions, ViewStyle } from "react-native";
-import { HapticTab } from "@/components/HapticTab";
-import TabBarBackground from "@/components/ui/TabBarBackground";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Feather } from "@expo/vector-icons";
-import { House } from "lucide-react-native";
-import { Text } from "@/components/ui/text";
+import {
+  ImageBackground,
+  Image,
+  Text,
+  View,
+  Platform,
+  ViewStyle,
+} from "react-native";
 import * as Speech from "expo-speech";
+import { useState } from "react";
 
-// Define types for Feather icons
-type FeatherIconName = "coffee" | "star" | "bell";
+import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
 
-// Define tab configuration type
-interface TabConfig {
-  name: string;
-  label: string;
-  icon: React.ComponentType<any>;
-  iconName: FeatherIconName | null;
-}
-
-// Constants for tab configuration
-const TABS: TabConfig[] = [
-  { name: "index", label: "Explore", icon: House, iconName: null },
-  { name: "NewsScreen", label: "News", icon: Feather, iconName: "coffee" },
-  {
-    name: "FavouriteScreen",
-    label: "Favourite",
-    icon: Feather,
-    iconName: "star",
-  },
-  { name: "SettingScreen", label: "Settings", icon: Feather, iconName: "bell" },
-];
-
-// TTS function
+// Fallback for TTS on web
 const speak = (text: string): void => {
-  Speech.speak(text, { language: "en" });
+  if (Platform.OS !== "web") {
+    Speech.speak(text, { language: "en" }); // Đọc bằng tiếng Anh
+  } else {
+    console.log(`TTS on web: ${text}`);
+  }
 };
 
-// Props type for TabIcon component
-interface TabIconProps {
-  focused: boolean;
-  label: string;
-  IconComponent: React.ComponentType<any>;
-  iconName: FeatherIconName | null;
-  tabBarHeight: number;
-  tabBarFixedWidth: number;
-  width: number;
+function TabIcon({ focused, icon, title }: any) {
+  if (focused) {
+    return (
+      <ImageBackground
+        source={images.highlight as any}
+        className="flex flex-row w-full flex-1 min-w-[112px] min-h-14 mt-4 justify-center items-center rounded-full overflow-hidden"
+        accessible
+        accessibilityLabel={title}
+        accessibilityRole="button"
+      >
+        <Image source={icon} tintColor="#151312" className="size-5" />
+        <Text className="text-secondary text-base font-semibold ml-2">
+          {title}
+        </Text>
+      </ImageBackground>
+    );
+  }
+
+  return (
+    <View className="size-full justify-center items-center mt-4 rounded-full">
+      <Image source={icon} tintColor="#A8B5DB" className="size-5" />
+    </View>
+  );
 }
 
-// Reusable Tab Icon Component
-const TabIcon: React.FC<TabIconProps> = ({
-  focused,
-  label,
-  IconComponent,
-  iconName,
-  tabBarHeight,
-  tabBarFixedWidth,
-  width,
-}) => (
-  <View
-    className={`flex-row items-center justify-center px-4 rounded-full ${
-      focused ? "bg-gradient-to-r from-green-600 to-green-400" : ""
-    }`}
-    style={{
-      width: focused ? tabBarFixedWidth : "auto",
-      minWidth: focused ? tabBarFixedWidth : width > 768 ? 60 : 50,
-      height: focused ? tabBarHeight : "auto",
-    }}
-    accessible
-    accessibilityLabel={label}
-    accessibilityRole="button"
-  >
-    {iconName ? (
-      <IconComponent
-        size={width > 768 ? 24 : 20}
-        name={iconName}
-        color="white"
-      />
-    ) : (
-      <IconComponent className="size-5 text-white" />
-    )}
-    {focused && (
-      <Text className="text-white text-base font-semibold ml-2">{label}</Text>
-    )}
-  </View>
-);
+export default function TabsLayout() {
+  const [lastSpokenTab, setLastSpokenTab] = useState<string | null>(null); // Theo dõi tab đã được đọc TTS
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const { width } = useWindowDimensions();
-
-  // Dynamic sizes for responsiveness
-  const tabBarHeight: number = width > 768 ? 60 : 52;
-  const tabBarMarginHorizontal: number = width > 768 ? 40 : 20;
-  const tabBarFixedWidth: number = width > 768 ? 140 : 120;
-
-  // Tab bar style configuration
-  const tabBarStyle: ViewStyle = {
-    position: "absolute",
-    backgroundColor: "rgba(31, 41, 55, 0.8)", // Semi-transparent version of #1F2937 to simulate blur
-    borderRadius: 50,
-    marginHorizontal: tabBarMarginHorizontal,
-    marginBottom: width > 768 ? 48 : 36,
-    height: tabBarHeight,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#0f0d23",
-    paddingHorizontal: width > 768 ? 16 : 8,
+  const handleTabPress = (title: string) => {
+    // Chỉ đọc TTS nếu tab hiện tại khác với tab đã đọc trước đó
+    if (lastSpokenTab !== title) {
+      speak(`You have navigated to the ${title} page`);
+      setLastSpokenTab(title);
+    }
   };
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "white",
-        tabBarInactiveTintColor: "gray",
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarIconStyle: {
+        tabBarShowLabel: false,
+        tabBarItemStyle: {
           width: "100%",
           height: "100%",
           justifyContent: "center",
           alignItems: "center",
         },
-        tabBarBackground: TabBarBackground,
-        tabBarStyle,
+        tabBarStyle: {
+          backgroundColor: "#0F0D23",
+          borderRadius: 50,
+          marginHorizontal: 20,
+          marginBottom: 36,
+          height: 52,
+          position: "absolute",
+          overflow: "hidden",
+          borderWidth: 1,
+          borderColor: "#0F0D23",
+        } as ViewStyle,
       }}
     >
-      {TABS.map(({ name, label, icon: IconComponent, iconName }) => (
-        <Tabs.Screen
-          key={name}
-          name={name}
-          options={{
-            tabBarIcon: ({ focused }: { focused: boolean }) => (
-              <TabIcon
-                focused={focused}
-                label={label}
-                IconComponent={IconComponent}
-                iconName={iconName}
-                tabBarHeight={tabBarHeight}
-                tabBarFixedWidth={tabBarFixedWidth}
-                width={width}
-              />
-            ),
-            tabBarLabel: () => null,
-          }}
-          listeners={{
-            tabPress: () =>
-              speak(`You have been redirected to the ${label} page.`),
-          }}
-        />
-      ))}
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "index",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.home} title="Home" />
+          ),
+        }}
+        listeners={{
+          tabPress: () => handleTabPress("Home"),
+        }}
+      />
+
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: "Search",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.search} title="Search" />
+          ),
+        }}
+        listeners={{
+          tabPress: () => handleTabPress("Search"),
+        }}
+      />
+
+      <Tabs.Screen
+        name="favourite"
+        options={{
+          title: "Favorite",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.save} title="Favourite" />
+          ),
+        }}
+        listeners={{
+          tabPress: () => handleTabPress("Favourite"),
+        }}
+      />
+
+      <Tabs.Screen
+        name="setting"
+        options={{
+          title: "Setting",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.setting} title="Setting" />
+          ),
+        }}
+        listeners={{
+          tabPress: () => handleTabPress("Setting"),
+        }}
+      />
     </Tabs>
   );
 }

@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import axios from "axios";
+import Navbar from "../components/navbar";
 
 // import { API_URL } from "@/constants/api";
 // import BookCard from "@/components/BookCard";
@@ -39,18 +40,9 @@ export default function Library() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="flex-row justify-between items-center px-4 py-3 bg-sky-700">
-        <Text className="text-2xl font-bold text-white">Library</Text>
-        <TouchableOpacity
-          //   onPress={handleVoiceAssistance}
-          accessibilityLabel="Voice assistance"
-          accessibilityHint="Activates voice guidance for navigation"
-        >
-          <Feather name="volume-2" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
+      <Navbar />
 
-      <View className="px-4 py-3">
+      {/* <View className="px-4 py-3">
         <View className="flex-row items-center bg-white rounded-lg px-3 mb-4">
           <Feather name="search" size={20} color="gray" />
           <TextInput
@@ -66,9 +58,9 @@ export default function Library() {
               <Feather name="x" size={20} color="gray" />
             </TouchableOpacity>
           ) : null}
-        </View>
+        </View> */}
 
-        {/* <FlatList
+      {/* <FlatList
           horizontal
           data={[{ id: "all", name: "All Books" }, ...categories]}
             keyExtractor={(item) => item.id || item._id}
@@ -100,7 +92,7 @@ export default function Library() {
               </TouchableOpacity>
             )}
         /> */}
-      </View>
+      {/* </View> */}
 
       {/* <FlatList
         data={filteredBooks}

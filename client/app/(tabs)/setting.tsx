@@ -10,6 +10,8 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { Nav } from "@expo/html-elements";
+import Navbar from "../components/navbar";
 
 export default function Setting() {
   const [settings, setSettings] = useState({
@@ -24,15 +26,7 @@ export default function Setting() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="flex-row justify-between items-center px-4 py-3 bg-sky-700">
-        <Text className="text-2xl font-bold text-white">Settings</Text>
-        <TouchableOpacity
-          accessibilityLabel="Voice assistance"
-          accessibilityHint="Activates voice guidance for navigation"
-        >
-          <Feather name="volume-2" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
+      <Navbar />
 
       <ScrollView className="flex-1 px-4 py-6">
         <View className="bg-white rounded-lg overflow-hidden mb-6">
@@ -51,7 +45,7 @@ export default function Setting() {
             </View>
             <Switch
               value={settings.autoReadEnabled}
-              trackColor={{ false: "#767577", true: "#0284c7" }}
+              trackColor={{ false: "#767577", true: "#D6BCFA" }}
               thumbColor="#f4f3f4"
               ios_backgroundColor="#3e3e3e"
               accessibilityLabel="Auto-read content"
@@ -70,7 +64,7 @@ export default function Setting() {
             </View>
             <Switch
               value={settings.highContrastMode}
-              trackColor={{ false: "#767577", true: "#0284c7" }}
+              trackColor={{ false: "#767577", true: "#D6BCFA" }}
               thumbColor="#f4f3f4"
               ios_backgroundColor="#3e3e3e"
               accessibilityLabel="High contrast mode"
@@ -87,7 +81,7 @@ export default function Setting() {
             </View>
             <Switch
               value={settings.largeTextEnabled}
-              trackColor={{ false: "#767577", true: "#0284c7" }}
+              trackColor={{ false: "#767577", true: "#D6BCFA" }}
               thumbColor="#f4f3f4"
               ios_backgroundColor="#3e3e3e"
               accessibilityLabel="Large text"
@@ -122,7 +116,7 @@ export default function Setting() {
                   style={{
                     width: `${((settings.speechRate - 0.5) / 1.5) * 100}%`,
                   }}
-                  className="h-2 bg-sky-600 rounded-full"
+                  className="h-2 bg-purple-500 rounded-full"
                 />
               </View>
 
@@ -141,7 +135,7 @@ export default function Setting() {
             accessibilityLabel="Test voice"
             accessibilityHint="Play a sample of the text-to-speech voice"
           >
-            <Feather name="play" size={20} color="#0284c7" className="mr-2" />
+            <Feather name="play" size={20} color="#D6BCFA" className="mr-2" />
             <Text className="text-sky-600 font-medium">Test Voice</Text>
           </TouchableOpacity>
         </View>
@@ -160,28 +154,11 @@ export default function Setting() {
             </View>
             <Switch
               value={settings.notificationsEnabled}
-              trackColor={{ false: "#767577", true: "#0284c7" }}
+              trackColor={{ false: "#767577", true: "#D6BCFA" }}
               thumbColor="#f4f3f4"
               ios_backgroundColor="#3e3e3e"
               accessibilityLabel="Notifications"
               accessibilityHint="Toggle notifications for new content"
-            />
-          </View>
-
-          <View className="px-4 py-3 flex-row justify-between items-center">
-            <View>
-              <Text className="font-medium text-gray-800">
-                Download on Wi-Fi Only
-              </Text>
-              <Text className="text-sm text-gray-500">Save mobile data</Text>
-            </View>
-            <Switch
-              value={settings.downloadOnWifiOnly}
-              trackColor={{ false: "#767577", true: "#0284c7" }}
-              thumbColor="#f4f3f4"
-              ios_backgroundColor="#3e3e3e"
-              accessibilityLabel="Download on Wi-Fi only"
-              accessibilityHint="Toggle downloading content only when connected to Wi-Fi"
             />
           </View>
         </View>
