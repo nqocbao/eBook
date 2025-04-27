@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
 import Book from "../../models/book.model";
-import News from "../../models/news.model";
 import Category from "../../models/category.model";
 import Favorite from "../../models/favorite.model";
 import ReadingProgress from "../../models/reading-progress.model";
 
-// [GET] /reading-progress
+// [GET] /tasks
 export const index = async (req: Request, res: Response) => {
     const find = {
-        user_id: req["user"]._id
+        isPublished: false
     };
 
     // Tìm kiếm
@@ -43,112 +42,45 @@ export const index = async (req: Request, res: Response) => {
     const skip: number = (page - 1) * limitItems;
     // Hết phân trang
     
-    const readingProgress = await ReadingProgress
+    const books = await Book
     .find(find)
     .limit(limitItems)
     .skip(skip)
     .sort(sort);
 
-    // Với mỗi reading-progress, tìm thêm document title dựa vào doc_id và doc_type
-    const readingProgressWithTitle = await Promise.all(readingProgress.map(async (progress) => {
-        let documentTitle: any = {};
-
-        if (progress.doc_type === "Book") {
-            const doc = await Book.findById(progress.doc_id).select("_id title thumbnail");
-            if (doc) documentTitle = doc;
-        } else if (progress.doc_type === "News") {
-            const doc = await News.findById(progress.doc_id).select("_id title thumbnail");
-            if (doc) documentTitle = doc;
-        }
-
-        return {
-            ...progress.toObject(),
-            documentTitle
-        };
-    }));
-
-    res.json(readingProgressWithTitle);
+    res.json(books);
 }
 
-// [GET] /reading-progress/detail/:doc_id
+// [GET] /tasks/detail/:id
 export const detail = async (req: Request, res: Response) => {
     try {
-        const progress = await ReadingProgress.findOne({
-            user_id: req["user"]._id,
-            doc_id: req.params.doc_id
+        const id = req.params.id;
+
+        const book = await Book.findOne({
+            _id: id,
+            isPublished: false
         });
-          
-        if (!progress) {
-            res.status(404).json({
-                message: 'Chưa có tiến độ đọc cho docs này'
-            });
-            return;
+
+        const categoryOfBook = await Category.findOne({
+            _id: book.category_id
+        }).select("title type");
+
+        if (!book) {
+            res.json("Không tồn tại sách cần tìm!");
         }
-        
-        res.status(200).json({
-            message: "Trả về tiến trình đang đọc thành công",
-            progress: progress
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, message: error.message });
-    }
-}
 
-// [POST] /reading-progress/add/:doc_id
-export const addDoc = async (req: Request, res: Response) => {
-    try {
-        const doc_id = req.params.doc_id;
-        const { currentPage } = req.body;
-        let doc_type = "";
-
-        let document1 = await Book.findById(req.params.doc_id);
-        let document2 = await News.findById(req.params.doc_id);
-
-        if (document1) doc_type = "Book";
-        if (document2) doc_type = "News";
-        if (doc_type == "") {
-            res.json({
-                success: false,
-                message: "Document cần thêm vào danh sách đang đọc không tồn tại!"
-            });
-            return;
+        if (!categoryOfBook) {
+            res.json("Không tồn tại thể loại sách");
         }
-        
-        // Tìm và cập nhật tiến độ, hoặc tạo mới nếu chưa có
-        const progress = await ReadingProgress.findOneAndUpdate(
-            {
-                user_id: req["user"]._id,
-                doc_id
-            },
-            { 
-                doc_type,
-                currentPage,
-                lastReadAt: Date.now()
-            },
-            { new: true, upsert: true }
-        );
-        
-        res.status(200).json({ success: true, progress });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-}
 
-// [DELETE] /reading-progress/delete/:doc_id
-export const deleteDoc = async (req: Request, res: Response) => {
-    try {
-        await ReadingProgress.deleteOne({
-            user_id: req["user"]._id,
-            doc_id: req.params.doc_id
-        });
         res.json({
-            message: "Xóa document đang đọc thành công!"
+            book: book,
+            categoryOfBook: categoryOfBook
         });
     } catch (error) {
         console.log(error);
         res.json({
-            message: "Lỗi xóa document đang đọc",
+            message: "Lỗi tìm phim",
             error: error
         });
     }

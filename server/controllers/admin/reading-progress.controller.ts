@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import Book from "../../models/book.model";
-import Category from "../../models/category.model";
-import Favorite from "../../models/favorite.model";
 import ReadingProgress from "../../models/reading-progress.model";
+import User from "../../models/user.model";
 
 export const index = async (req: Request, res: Response) => {
     const find = {
@@ -50,37 +49,25 @@ export const index = async (req: Request, res: Response) => {
     res.json(books);
 }
 
-// [GET] /tasks/detail/:id
 export const detail = async (req: Request, res: Response) => {
+    
+}
+
+
+export const deleteReadingProgress = async (req: Request, res: Response) => {
+
     try {
         const id = req.params.id;
-
-        const book = await Book.findOne({
-            _id: id,
-            isPublished: false
-        });
-
-        const categoryOfBook = await Category.findOne({
-            _id: book.category_id
-        }).select("title type");
-
-        if (!book) {
-            res.json("Không tồn tại sách cần tìm!");
-        }
-
-        if (!categoryOfBook) {
-            res.json("Không tồn tại thể loại sách");
-        }
-
+        const result = await ReadingProgress.findByIdAndDelete(id);
         res.json({
-            book: book,
-            categoryOfBook: categoryOfBook
-        });
-    } catch (error) {
-        console.log(error);
+            code:200,
+            message: "Xóa tiến trình đọc thành công!"
+        })
+    } catch(error) {
         res.json({
-            message: "Lỗi tìm phim",
-            error: error
-        });
+            code:400,
+            message: "Xóa tiến trình đọc không thành công"
+        })
     }
-}
+};
+
