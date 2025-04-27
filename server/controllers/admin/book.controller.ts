@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import Book from "../../models/book.model";
 import Category from "../../models/category.model";
+import ReadingProgress from "../../models/reading-progress.model";
+import Favorite from "../../models/favorite.model";
 
 //[GET] /books/index
 export const index = async (req: Request, res: Response) => {
@@ -127,7 +129,15 @@ export const deleteBook = async (req: Request, res: Response) => {
             _id: { $in: ids }
         }, {
             isPublished: false
+        });
+
+        await Favorite.deleteMany({
+            doc_id: { $in : ids }
         })
+
+        await ReadingProgress.deleteMany({
+            doc_id: { $in: ids }
+        });
         
         res.json({
             message: "Xóa sách thành công"
@@ -139,3 +149,4 @@ export const deleteBook = async (req: Request, res: Response) => {
         });
     }
 }
+

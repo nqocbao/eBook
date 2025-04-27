@@ -125,19 +125,8 @@ export const addDoc = async (req: Request, res: Response) => {
 // [DELETE] /favorites/delete/:doc_id
 export const deleteDoc = async (req: Request, res: Response) => {
     try {
-        // const existingFavorite = await Favorite.findOne({
-        //     doc_id: req.params.doc_id
-        // });
-        // if (existingFavorite) {
-        //     await Favorite.deleteOne({
-        //         doc_id: req.params.doc_id
-        //     });
-        //     res.json({
-        //         message: "Xóa document yêu thích thành công!"
-        //     });
-        //     return;
-        // }
         await Favorite.deleteOne({
+            userId: req["user"]._id,
             doc_id: req.params.doc_id
         });
         res.json({

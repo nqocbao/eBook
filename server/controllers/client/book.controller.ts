@@ -2,7 +2,7 @@ import Book from "../../models/book.model";
 import { Request, Response } from "express";
 import Category from "../../models/category.model";
 
-// [GET] /tasks
+// [GET] /books
 export const index = async (req: Request, res: Response) => {
     const find = {
         isPublished: true
@@ -49,7 +49,7 @@ export const index = async (req: Request, res: Response) => {
     res.json(books);
 }
 
-// [GET] /tasks/detail/:id
+// [GET] /book/detail/:id
 export const detail = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
@@ -78,7 +78,7 @@ export const detail = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         res.json({
-            message: "Lỗi tìm phim",
+            message: "Lỗi tìm sách",
             error: error
         });
     }
