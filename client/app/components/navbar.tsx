@@ -8,17 +8,7 @@ import {
   Text as RNText,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import {
-  Heading,
-  Text,
-  Pressable,
-  Icon,
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  VStack,
-  HStack,
-} from "@gluestack-ui/themed";
+
 import {
   Drawer,
   DrawerBackdrop,
@@ -28,9 +18,13 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from "@/components/ui/drawer";
-import { AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Home, LogOut, User } from "lucide-react-native";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import { Pressable } from "@/components/ui/pressable";
+import { Icon } from "@/components/ui/icon";
 
 // Wrapper components cho các biểu tượng từ Feather
 const UserIcon = (props: any) => <Feather name="user" {...props} />;
@@ -55,7 +49,7 @@ const Navbar = () => {
           className="w-10 items-center bg-white"
           onPress={() => setShowSideBar(true)}
         >
-          <Feather name="menu" size={28} color="gray" />
+          <Feather name="menu" size={28} color="black" />
         </Button>
         <Drawer
           isOpen={showSideBar}
@@ -89,26 +83,18 @@ const Navbar = () => {
             </DrawerHeader>
             <DrawerBody contentContainerClassName="gap-2">
               <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                <Icon
-                  as={UserIcon}
-                  fontSize={24}
-                  className="text-typography-600"
-                />
+                <Icon as={UserIcon} size="lg" className="text-typography-600" />
                 <Text>My Profile</Text>
               </Pressable>
               <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                <Icon
-                  as={HomeIcon}
-                  fontSize={24}
-                  className="text-typography-600"
-                />
+                <Icon as={HomeIcon} size="lg" className="text-typography-600" />
                 <Text>Saved Book</Text>
               </Pressable>
 
               <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
                 <Icon
                   as={PhoneIcon}
-                  fontSize={24}
+                  size="lg"
                   className="text-typography-600"
                 />
                 <Text>Contact Us</Text>

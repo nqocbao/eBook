@@ -62,12 +62,6 @@ export default function News() {
           ) : null}
         </View>
       </View>
-      <Input>
-        <InputSlot className="pl-3">
-          <InputIcon as={SearchIcon} />
-        </InputSlot>
-        <InputField placeholder="Search..." />
-      </Input>
     </SafeAreaView>
   );
 }
