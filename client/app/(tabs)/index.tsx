@@ -1,276 +1,398 @@
-"use client";
-
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   ScrollView,
   TouchableOpacity,
   Image,
   SafeAreaView,
+  Text as RNText,
+  ImageBackground,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerBackdrop,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-} from "@/components/ui/drawer";
-import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
-import { Divider } from "@/components/ui/divider";
-import { Pressable } from "@/components/ui/pressable";
-import { Icon, PhoneIcon, StarIcon } from "@/components/ui/icon";
-import { User, Home, ShoppingCart, Wallet, LogOut } from "lucide-react-native";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import Navbar from "../components/navbar";
+import { speak } from "expo-speech";
+import BookCard from "../components/BookCard";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
+import { HeartIcon, PlayIcon } from "lucide-react-native";
+
+// Danh sách chuyên mục (có thể load động từ API)
+const categories = [
+  { id: 1, title: "All" },
+  { id: 2, title: "Drama" },
+  { id: 3, title: "Fantasy" },
+  { id: 4, title: "Comedy" },
+  { id: 5, title: "Other" },
+];
+
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  category: string[];
+  cover: string;
+  pages?: number;
+  reads?: string;
+  likes?: string;
+  description?: string;
+}
+
+// Danh sách gợi ý (có thể load động từ API)
+const recommended: Book[] = [
+  {
+    id: 1,
+    title: "Hoàng tử bé",
+    author: "Antoine de Saint-Exupéry",
+    category: ["Fantasy", "Drama"],
+    cover:
+      "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
+    pages: 150,
+    reads: "75.0K",
+    likes: "12.0K",
+    description: `Cuốn tiều thuyết The Little Prince - Hoàng tử bé kể về câu chuyện của một phi công bị rơi máy bay trong sa mạc Sahara và được chào đón bởi một cậu bé tuyền bồ minh là một hoàng tử nhỏ, từ một hành tinh khác đến...`,
+  },
+  {
+    id: 2,
+    title: "48 Nguyên Tắc Chủ Chốt Của Quyền Lực",
+    author: "Robert Greene",
+    category: ["Other"],
+    cover:
+      "https://i.pinimg.com/736x/93/07/1f/93071f129b107483d82d6a3019eeed84.jpg",
+    pages: 480,
+    reads: "69.5K",
+    likes: "10.0K",
+    description:
+      "Qua nghiên cứu lịch sử nhân loại, với những nhân vật có quyền lực nhất tự cổ chí kim, Robert Greene đã khái quát nên 48 nguyên tắc tạo nên quyền lực một cách có cơ sở khoa học...",
+  },
+  {
+    id: 3,
+    title: "Tư Duy Nhanh Và Chậm",
+    author: "Daniel Kahneman",
+    category: ["Other"],
+    cover:
+      "https://i.pinimg.com/736x/eb/58/a3/eb58a346f50d2d1776ac44657a6c1856.jpg",
+    pages: 512,
+    reads: "50.2K",
+    likes: "8.5K",
+    description:
+      "Cuốn sách Tư duy nhanh và chậm bàn sâu về sự sai lệch của trực giác, những giới hạn của đầu óc con người khi sử dụng phương pháp tư duy nhanh...",
+  },
+  {
+    id: 4,
+    title: "Sapiens: Lược Sử Loài Người",
+    author: "Yuval Noah Harari",
+    category: ["Other", "Drama"],
+    cover:
+      "https://i.pinimg.com/736x/8e/fc/81/8efc816a45a3c671ad594240cb3368bf.jpg",
+    pages: 443,
+    reads: "75.0K",
+    likes: "12.0K",
+    description:
+      "“Sapiens: Lược sử loài người” đưa chúng ta vào một chuyến đi kinh ngạc qua toàn bộ lịch sử loài người, từ những gốc rễ tiến hóa của nó đến thời đại của chủ nghĩa tư bản và kỹ thuật di truyền...",
+  },
+];
+
+// Danh sách sách mới xuất bản (cập nhật thêm thông tin)
+const newReleases: Book[] = [
+  {
+    id: 1,
+    title: "Hoàng tử bé",
+    author: "Antoine de Saint-Exupéry",
+    category: ["Fantasy", "Drama"],
+    cover:
+      "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
+    pages: 150,
+    reads: "75.0K",
+    likes: "12.0K",
+    description: `Cuốn tiều thuyết The Little Prince - Hoàng tử bé kể về câu chuyện của một phi công bị rơi máy bay trong sa mạc Sahara và được chào đón bởi một cậu bé tuyền bồ minh là một hoàng tử nhỏ, từ một hành tinh khác đến...`,
+  },
+  {
+    id: 2,
+    title: "48 Nguyên Tắc Chủ Chốt Của Quyền Lực",
+    author: "Robert Greene",
+    category: ["Other"],
+    cover:
+      "https://i.pinimg.com/736x/93/07/1f/93071f129b107483d82d6a3019eeed84.jpg",
+    pages: 480,
+    reads: "69.5K",
+    likes: "10.0K",
+    description:
+      "Qua nghiên cứu lịch sử nhân loại, với những nhân vật có quyền lực nhất tự cổ chí kim, Robert Greene đã khái quát nên 48 nguyên tắc tạo nên quyền lực một cách có cơ sở khoa học...",
+  },
+  {
+    id: 3,
+    title: "Tư Duy Nhanh Và Chậm",
+    author: "Daniel Kahneman",
+    category: ["Other"],
+    cover:
+      "https://i.pinimg.com/736x/eb/58/a3/eb58a346f50d2d1776ac44657a6c1856.jpg",
+    pages: 512,
+    reads: "50.2K",
+    likes: "8.5K",
+    description:
+      "Cuốn sách Tư duy nhanh và chậm bàn sâu về sự sai lệch của trực giác, những giới hạn của đầu óc con người khi sử dụng phương pháp tư duy nhanh...",
+  },
+  {
+    id: 4,
+    title: "Sapiens: Lược Sử Loài Người",
+    author: "Yuval Noah Harari",
+    category: ["Other", "Drama"],
+    cover:
+      "https://i.pinimg.com/736x/8e/fc/81/8efc816a45a3c671ad594240cb3368bf.jpg",
+    pages: 443,
+    reads: "75.0K",
+    likes: "12.0K",
+    description:
+      "“Sapiens: Lược sử loài người” đưa chúng ta vào một chuyến đi kinh ngạc qua toàn bộ lịch sử loài người, từ những gốc rễ tiến hóa của nó đến thời đại của chủ nghĩa tư bản và kỹ thuật di truyền...",
+  },
+];
 
 export default function HomeScreen() {
-  const [showSideBar, setShowSideBar] = React.useState(false);
-  // Danh sách chuyên mục (có thể load động từ API)
-  const categories = [
-    { id: 1, title: "All" },
-    { id: 2, title: "Drama" },
-    { id: 3, title: "Fantasy" },
-    { id: 4, title: "Comedy" },
-    { id: 5, title: "Other" },
-  ];
+  const [isBookCardVisible, setBookCardVisible] = useState(false);
+  const [selectBook, setSelectedBook] = useState<Book | null>(null);
+  // Debug log để kiểm tra render
+  console.log("Rendering HomeScreen");
 
-  // Danh sách gợi ý (có thể load động từ API)
-  const recommended = [
-    {
-      id: 1,
-      title: "48 Nguyên Tắc Chủ Chốt Của Quyền Lực",
-      author: "Robert Greene",
-      cover: "https://picsum.photos/200/300", // ảnh minh họa
-    },
-    {
-      id: 2,
-      title: "Tư Duy Nhanh Và Chậm",
-      author: "Daniel Kahneman",
-      cover: "https://picsum.photos/200/300?random=1",
-    },
-    {
-      id: 3,
-      title: "Sapiens: Lược Sử Loài Người",
-      author: "Yuval Noah Harari",
-      cover: "https://picsum.photos/200/300?random=2",
-    },
-  ];
-
+  const handleReading = (book: any) => {
+    speak(`Đang chuyển hướng qua đọc sách ${book.title}.`);
+    console.log(`Đọc sách: ${book.title}`);
+  };
   return (
     <SafeAreaView className="h-screen w-screen bg-white">
-      {/* Thanh header trên cùng */}
-      <View className="flex-row justify-between items-center px-4 py-3">
-        <View className="flex-row items-center">
-          <Button
-            className="bg-primary w-10 items-center"
-            onPress={() => setShowSideBar(true)}
-          >
-            <Feather name="menu" size={28} />
-          </Button>
-          <Drawer
-            isOpen={showSideBar}
-            onClose={() => setShowSideBar(false)}
-            size="sm"
-            anchor="left"
-          >
-            <Pressable
-              onPress={() => {
-                console.log("Backdrop pressed, closing sidebar");
-                setShowSideBar(false);
-              }}
-              style={{
-                backgroundColor: "black",
-                opacity: 0.5,
-                position: "absolute",
-                inset: 0,
-                zIndex: 10,
-              }}
-            />
-            {/* <div
-              onClick={() => setShowSideBar(false)}
-              className="bg-black opacity-50 absolute inset-1/3 left-0 right-0 z-10"
-            /> */}
+      <View className="w-full h-full">
+        {/* Thanh header trên cùng */}
+        <Navbar />
 
-            <DrawerContent className="w-1/2 md:w-1/4 h-screen">
-              <DrawerHeader className="block gap-2 py-5">
-                <HStack space="md" className="h-10 justify-center items-center">
-                  <Avatar className=" bg-indigo-600 rounded-full">
-                    <AvatarFallbackText className="text-white w-full">
-                      Ronald Richards
-                    </AvatarFallbackText>
-                    <AvatarBadge />
-                  </Avatar>
-                  <VStack>
-                    <Heading className="text-sm md:text-lg">
-                      Ronald Richards
-                    </Heading>
-                    <Text size="sm">User</Text>
-                  </VStack>
-                </HStack>
-              </DrawerHeader>
-              {/* <Divider className=" my-4" /> */}
-              <DrawerBody contentContainerClassName="gap-2">
-                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                  <Icon as={User} size="lg" className="text-typography-600" />
-                  <Text>My Profile</Text>
-                </Pressable>
-                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                  <Icon as={Home} size="lg" className="text-typography-600" />
-                  <Text>Saved Address</Text>
-                </Pressable>
-                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                  <Icon
-                    as={ShoppingCart}
-                    size="lg"
-                    className="text-typography-600"
-                  />
-                  <Text>Orders</Text>
-                </Pressable>
-                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                  <Icon as={Wallet} size="lg" className="text-typography-600" />
-                  <Text>Saved Cards</Text>
-                </Pressable>
-                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                  <Icon
-                    as={StarIcon}
-                    size="lg"
-                    className="text-typography-600"
-                  />
-                  <Text>Review App</Text>
-                </Pressable>
-                <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                  <Icon
-                    as={PhoneIcon}
-                    size="lg"
-                    className="text-typography-600"
-                  />
-                  <Text>Contact Us</Text>
-                </Pressable>
-              </DrawerBody>
-              <DrawerFooter>
-                <Button
-                  className="w-full gap-2 mb-8"
-                  variant="outline"
-                  action="secondary"
+        {/* Khu vực nội dung chính */}
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          {/* Khối "Mới xuất bản" hoặc "Nổi bật" */}
+          <View className="px-6 mt-2">
+            <RNText className="text-lg font-bold text-gray-800 mb-4">
+              Mới xuất bản
+            </RNText>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {newReleases.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  className="pr-4"
+                  onPress={() => console.log("Xem chi tiết sách:", item.title)}
                 >
-                  <ButtonText>Logout</ButtonText>
-                  <ButtonIcon as={LogOut} />
-                </Button>
-              </DrawerFooter>
-            </DrawerContent>
-          </Drawer>
-        </View>
-        {/* Logo */}
-        <View className="flex-row items-center">
-          <Feather name="book-open" size={28} color="#EF4444" />
-          <Text className="ml-2 text-xl font-bold text-gray-800">eBook</Text>
-        </View>
-        {/* Nút tìm kiếm, tài khoản hoặc thông báo... tuỳ ý */}
-        <View className="flex-row items-center">
-          <TouchableOpacity className="mr-2">
-            <Feather name="search" size={24} color="gray" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Feather name="bell" size={24} color="gray" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image
-              source={{ uri: "https://picsum.photos/50" }} // ảnh đại diện
-              className="w-7 ml-3 h-7 rounded-full"
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
+                  <View className="bg-white rounded-lg overflow-hidden w-72 h-96 mb-2 shadow-md">
+                    <Image
+                      source={{ uri: item.cover }}
+                      className="w-full h-full"
+                      resizeMode="stretch"
+                      onError={() =>
+                        console.log(`Failed to load image for ${item.title}`)
+                      }
+                    />
+                  </View>
+                  <RNText className="text-sm font-semibold text-gray-800">
+                    {item.title}
+                  </RNText>
+                  <RNText className="text-xs text-gray-500">
+                    {item.author}
+                  </RNText>
+                  <TouchableOpacity
+                    className="bg-green-400 justify-center rounded-xl mt-2 h-12 px-4 py-2"
+                    onPress={() => {
+                      console.log("Xem chi tiết sách...");
+                      setSelectedBook(item);
+                      setBookCardVisible(true);
+                    }}
+                  >
+                    <RNText className="text-white text-center font-semibold">
+                      Nghe thử
+                    </RNText>
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
-      {/* Thanh chọn chuyên mục ở ngay dưới header
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="block items-center px-4 mb-2 pb-0 w-full h-5"
-      >
-        {categories.map((cat) => (
-          <Button className="w-20 h-8  mr-2 px-2 rounded-lg bg-gray-200 items-center justify-center">
-            <Text className="text-gray-700 font-semibold">{cat.title}</Text>
-          </Button>
-        ))}
-      </ScrollView> */}
+          {/* Danh sách đề xuất: "Tuyệt Cho Lần Nghe Đầu" */}
+          <View className="px-6 mt-2">
+            <Text className="text-lg font-bold text-gray-800 mt-8 my-4">
+              Tuyệt Cho Lần Nghe Đầu
+            </Text>
 
-      {/* Khu vực nội dung chính */}
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Khối "Mới xuất bản" hoặc "Nổi bật" */}
-        <View className="px-4 mt-2">
-          <Text className="text-lg font-bold text-gray-800 mb-2">
-            New Releases
-          </Text>
-
-          {/* Ví dụ 1 cuốn sách nổi bật ở giữa */}
-          <View className="bg-white rounded-lg overflow-hidden mb-4">
-            <Image
-              source={{ uri: "https://picsum.photos/400/600" }}
-              className="w-full h-56"
-              resizeMode="cover"
-            />
-            <View className="p-3">
-              <Text className="text-base font-bold text-gray-800 mb-1">
-                48 Nguyên Tắc Chủ Chốt Của Quyền Lực
-              </Text>
-              <Text className="text-sm text-gray-500 mb-2">Robert Greene</Text>
-              <TouchableOpacity
-                className="bg-sky-600 rounded-md px-4 py-2"
-                onPress={() => console.log("Xem chi tiết sách...")}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Nghe thử
-                </Text>
-              </TouchableOpacity>
+            <View className="w-full items-center justify-center">
+              {recommended.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  className=" w-full"
+                  onPress={() => console.log("Xem chi tiết sách:", item.title)}
+                >
+                  <HStack space="sm" reversed={false} className="mb-4">
+                    <View className=" rounded-lg overflow-hidden w-52 h-72 shadow-md">
+                      <Image
+                        source={{ uri: item.cover }}
+                        className="h-full w-full"
+                        resizeMode="cover"
+                        onError={() =>
+                          console.log(`Failed to load image for ${item.title}`)
+                        }
+                      />
+                    </View>
+                    <VStack space="xs" className="w-full">
+                      <VStack space="md" className="mt-10">
+                        <RNText className="text-lg font-semibold text-gray-800">
+                          {item.title}
+                        </RNText>
+                        <RNText className="text-sm text-gray-500">
+                          {item.author}
+                        </RNText>
+                        <RNText className="text-xs text-gray-600">
+                          Thể loại: {item.category.join(", ")}{" "}
+                          {/* Hiển thị tất cả thể loại, cách nhau bởi dấu phẩy */}
+                        </RNText>
+                      </VStack>
+                      <HStack className="gap-8 ml-9 items-center -bottom-24">
+                        <Button
+                          className="size-16 rounded-full bg-red-400"
+                          size="sm"
+                        >
+                          <ButtonIcon as={HeartIcon}></ButtonIcon>
+                        </Button>
+                        <Button
+                          className="size-16 rounded-full bg-green-400 hover:bg-green-800"
+                          size="sm"
+                        >
+                          <ButtonIcon as={PlayIcon}></ButtonIcon>
+                        </Button>
+                      </HStack>
+                    </VStack>
+                  </HStack>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
-        </View>
 
-        {/* Danh sách đề xuất: "Tuyệt Cho Lần Nghe Đầu", "Có Thể Bạn Quan Tâm", ... */}
-        <View className="px-4 mt-2">
-          <Text className="text-lg font-bold text-gray-800 mb-2">
-            Tuyệt Cho Lần Nghe Đầu
-          </Text>
+          {/* Hiển thị Book Card */}
+          {isBookCardVisible && selectBook && (
+            // <Actionsheet
+            //   isOpen={isBookCardVisible}
+            //   onClose={() => setBookCardVisible(false)}
+            //   snapPoints={[80]}
+            // >
+            //   <ActionsheetBackdrop className="h-screen w-screen" />
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {recommended.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                className="mr-4 w-36"
-                onPress={() => console.log("Xem chi tiết sách:", item.title)}
-              >
-                <View className="bg-white rounded-lg overflow-hidden mb-2">
-                  <Image
-                    source={{ uri: item.cover }}
-                    className="w-36 h-52"
-                    resizeMode="cover"
-                  />
-                </View>
-                <Text className="text-sm font-semibold text-gray-800">
-                  {item.title}
-                </Text>
-                <Text className="text-xs text-gray-500">{item.author}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+            //   <ActionsheetContent className="flex flex-col rounded-tl-3xl rounded-tr-3xl">
+            //     <Image
+            //       source={{
+            //         uri: "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
+            //       }}
+            //       resizeMode="stretch"
+            //       className="absolute top-0 left-0 right-0 bottom-0 w-full h-full items-center justify-center rounded-tl-3xl opacity-40 rounded-tr-3xl"
+            //     />
 
-        {/* Khoảng trống để tránh bị che khuất bởi thanh tab bar (nếu có) */}
-        <View className="h-20" />
-      </ScrollView>
+            //     <ActionsheetDragIndicatorWrapper>
+            //       <ActionsheetDragIndicator className=" w-2/5 h-1.5 my-2" />
+            //     </ActionsheetDragIndicatorWrapper>
+            //     <View className="w-full">
+            //       <Button
+            //         onPress={() => setBookCardVisible(false)}
+            //         className="absolute top-2.5 right-3 rounded-full size-10 p-2 bg-red-300 shadow-md "
+            //       >
+            //         <ButtonIcon
+            //           as={CloseIcon}
+            //           className="text-black"
+            //         ></ButtonIcon>
+            //       </Button>
+            //     </View>
+            //     <VStack className="w-full mt-3">
+            //       {/* Book Cover and Title/Author */}
+            //       <VStack
+            //         space="sm"
+            //         className="justify-center mt-6 items-center"
+            //       >
+            //         <Box className="w-[150px] h-[200px] border border-solid border-outline-300 rounded-sm">
+            //           <Image
+            //             source={{
+            //               uri: "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
+            //             }} // Replace with the actual book cover URL
+            //             resizeMode="stretch"
+            //             className="flex-1"
+            //           />
+            //         </Box>
+            //         <Text className="font-bold text-lg">Hoàng tử bé</Text>
+            //         <Text className="text-sm text-gray-500">
+            //           Antoine de Saint-Exupéry
+            //         </Text>
+            //       </VStack>
+
+            //       {/* Stats (Pages, Views, Likes) */}
+            //       <HStack space="lg" className="justify-center gap-16 mt-4">
+            //         <VStack className="items-center">
+            //           <Text className="font-bold">112</Text>
+            //           <Text className="text-xs text-gray-500">Trang</Text>
+            //         </VStack>
+            //         <VStack className="items-center">
+            //           <Text className="font-bold">69,5k</Text>
+            //           <Text className="text-xs text-gray-500">Lượt đọc</Text>
+            //         </VStack>
+            //         <VStack className="items-center">
+            //           <Text className="font-bold">10,0k</Text>
+            //           <Text className="text-xs text-gray-500">Yêu thích</Text>
+            //         </VStack>
+            //       </HStack>
+
+            //       {/* Description */}
+            //       <VStack className="mt-4 mx-5">
+            //         <ScrollView
+            //           showsHorizontalScrollIndicator={false}
+            //           className="h-60"
+            //         >
+            //           <Text className="text-lg text-gray-700">
+            //             Cuốn tiều thuyết The Little Prince - Hoàng tử bé kể về
+            //             câu chuyện của một phi công bị rơi máy bay trong sa mạc
+            //             Sahara và được chào đón bởi một cậu bé tuyền bồ minh là
+            //             một hoàng tử nhỏ, từ một hành tinh khác đến. Trong quá
+            //             trình sửa chữa máy bay, viên phi công đã biết được câu
+            //             chuyện đời của "hoàng tử nhỏ" và khát khao trở lại hành
+            //             tinh quê hương của mình. Mặc dù được coi là một cuốn
+            //             truyện thiếu nhi. Cuốn tiều thuyết The Little Prince -
+            //             Hoàng tử bé kể về câu chuyện của một phi công bị rơi máy
+            //             bay trong sa mạc Sahara và được chào đón bởi một cậu bé
+            //             tuyền bồ minh là một hoàng tử nhỏ, từ một hành tinh khác
+            //             đến. Trong quá trình sửa chữa máy bay, viên phi công đã
+            //             biết được câu chuyện đời của "hoàng tử nhỏ" và khát khao
+            //             trở lại hành tinh quê hương của mình. Mặc dù được coi là
+            //             một cuốn truyện thiếu nhi
+            //           </Text>
+            //         </ScrollView>
+            //       </VStack>
+
+            //       {/* Action Buttons */}
+            //     </VStack>
+            //     <View className="absolute bottom-20 left-0 right-0 px-4">
+            //       <HStack space="md" className="justify-center">
+            //         <View className="w-20 items-center justify-center">
+            //           <Button className="size-7 bg-transparent">
+            //             <ButtonText>
+            //               <Icon as={HeartIcon} className="text-gray-500" />
+            //             </ButtonText>
+            //           </Button>
+            //         </View>
+            //         <Button className="flex-1 bg-black h-14 rounded-full">
+            //           <ButtonText className="text-white">Tải sách</ButtonText>
+            //         </Button>
+            //       </HStack>
+            //     </View>
+            //   </ActionsheetContent>
+            // </Actionsheet>
+            <BookCard
+              isBookCardVisible={isBookCardVisible}
+              setBookCardVisible={setBookCardVisible}
+              book={selectBook!}
+            />
+          )}
+          {/* Khoảng trống để tránh bị che khuất bởi thanh tab bar */}
+          <View className="h-20" />
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

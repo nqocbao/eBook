@@ -38,7 +38,7 @@ export default function RootLayout() {
       <GluestackUIProvider mode={colorScheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="books/[id]" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
       </GluestackUIProvider>

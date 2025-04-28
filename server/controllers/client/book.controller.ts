@@ -1,10 +1,11 @@
 import Book from "../../models/book.model";
 import { Request, Response } from "express";
+import Category from "../../models/category.model";
 
 // [GET] /tasks
 export const index = async (req: Request, res: Response) => {
     const find = {
-        isPublished: false
+        isPublished: true
     };
 
     // Tìm kiếm
@@ -50,12 +51,35 @@ export const index = async (req: Request, res: Response) => {
 
 // [GET] /tasks/detail/:id
 export const detail = async (req: Request, res: Response) => {
-  const id = req.params.id;
+    try {
+        const id = req.params.id;
 
-  const book = await Book.findOne({
-    _id: id,
-    isPublished: false
-  });
+        const book = await Book.findOne({
+            _id: id,
+            isPublished: true
+        });
 
-  res.json(book);
+        const categoryOfBook = await Category.findOne({
+            _id: book.category_id
+        }).select("title type");
+
+        if (!book) {
+            res.json("Không tồn tại sách cần tìm!");
+        }
+
+        if (!categoryOfBook) {
+            res.json("Không tồn tại thể loại sách");
+        }
+
+        res.json({
+            book: book,
+            categoryOfBook: categoryOfBook
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({
+            message: "Lỗi tìm phim",
+            error: error
+        });
+    }
 }

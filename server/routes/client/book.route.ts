@@ -5,6 +5,6 @@ import * as controller from "../../controllers/client/book.controller";
 
 router.get("/", controller.index);
 
-// router.get("/detail/:id", controller.detail);
+router.get("/detail/:id", controller.detail);
 
 export const bookRoute = router;
