@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Text as RNText,
   ImageBackground,
+  Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
@@ -160,7 +161,10 @@ export default function HomeScreen() {
     console.log(`Đọc sách: ${book.title}`);
   };
   return (
-    <SafeAreaView className="h-screen w-screen bg-white">
+    <SafeAreaView
+      className="flex-1 bg-white"
+      style={Platform.OS === "android" ? { paddingTop: 40 } : {}}
+    >
       <View className="w-full h-full">
         {/* Thanh header trên cùng */}
         <Navbar />
@@ -182,7 +186,7 @@ export default function HomeScreen() {
                   <View className="bg-white rounded-lg overflow-hidden w-72 h-96 mb-2 shadow-md">
                     <Image
                       source={{ uri: item.cover }}
-                      className="w-full h-full"
+                      className="w-full h-full border-[1px] border-black rounded-lg"
                       resizeMode="stretch"
                       onError={() =>
                         console.log(`Failed to load image for ${item.title}`)
@@ -249,7 +253,7 @@ export default function HomeScreen() {
                           {/* Hiển thị tất cả thể loại, cách nhau bởi dấu phẩy */}
                         </RNText>
                       </VStack>
-                      <HStack className="gap-8 ml-9 items-center -bottom-24">
+                      <HStack className="gap-8 ml-7 items-center -bottom-24">
                         <Button
                           className="size-16 rounded-full bg-red-400"
                           size="sm"
@@ -259,6 +263,11 @@ export default function HomeScreen() {
                         <Button
                           className="size-16 rounded-full bg-green-400 hover:bg-green-800"
                           size="sm"
+                          onPress={() => {
+                            console.log("Xem chi tiết sách...");
+                            setSelectedBook(item);
+                            setBookCardVisible(true);
+                          }}
                         >
                           <ButtonIcon as={PlayIcon}></ButtonIcon>
                         </Button>
@@ -272,117 +281,6 @@ export default function HomeScreen() {
 
           {/* Hiển thị Book Card */}
           {isBookCardVisible && selectBook && (
-            // <Actionsheet
-            //   isOpen={isBookCardVisible}
-            //   onClose={() => setBookCardVisible(false)}
-            //   snapPoints={[80]}
-            // >
-            //   <ActionsheetBackdrop className="h-screen w-screen" />
-
-            //   <ActionsheetContent className="flex flex-col rounded-tl-3xl rounded-tr-3xl">
-            //     <Image
-            //       source={{
-            //         uri: "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
-            //       }}
-            //       resizeMode="stretch"
-            //       className="absolute top-0 left-0 right-0 bottom-0 w-full h-full items-center justify-center rounded-tl-3xl opacity-40 rounded-tr-3xl"
-            //     />
-
-            //     <ActionsheetDragIndicatorWrapper>
-            //       <ActionsheetDragIndicator className=" w-2/5 h-1.5 my-2" />
-            //     </ActionsheetDragIndicatorWrapper>
-            //     <View className="w-full">
-            //       <Button
-            //         onPress={() => setBookCardVisible(false)}
-            //         className="absolute top-2.5 right-3 rounded-full size-10 p-2 bg-red-300 shadow-md "
-            //       >
-            //         <ButtonIcon
-            //           as={CloseIcon}
-            //           className="text-black"
-            //         ></ButtonIcon>
-            //       </Button>
-            //     </View>
-            //     <VStack className="w-full mt-3">
-            //       {/* Book Cover and Title/Author */}
-            //       <VStack
-            //         space="sm"
-            //         className="justify-center mt-6 items-center"
-            //       >
-            //         <Box className="w-[150px] h-[200px] border border-solid border-outline-300 rounded-sm">
-            //           <Image
-            //             source={{
-            //               uri: "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
-            //             }} // Replace with the actual book cover URL
-            //             resizeMode="stretch"
-            //             className="flex-1"
-            //           />
-            //         </Box>
-            //         <Text className="font-bold text-lg">Hoàng tử bé</Text>
-            //         <Text className="text-sm text-gray-500">
-            //           Antoine de Saint-Exupéry
-            //         </Text>
-            //       </VStack>
-
-            //       {/* Stats (Pages, Views, Likes) */}
-            //       <HStack space="lg" className="justify-center gap-16 mt-4">
-            //         <VStack className="items-center">
-            //           <Text className="font-bold">112</Text>
-            //           <Text className="text-xs text-gray-500">Trang</Text>
-            //         </VStack>
-            //         <VStack className="items-center">
-            //           <Text className="font-bold">69,5k</Text>
-            //           <Text className="text-xs text-gray-500">Lượt đọc</Text>
-            //         </VStack>
-            //         <VStack className="items-center">
-            //           <Text className="font-bold">10,0k</Text>
-            //           <Text className="text-xs text-gray-500">Yêu thích</Text>
-            //         </VStack>
-            //       </HStack>
-
-            //       {/* Description */}
-            //       <VStack className="mt-4 mx-5">
-            //         <ScrollView
-            //           showsHorizontalScrollIndicator={false}
-            //           className="h-60"
-            //         >
-            //           <Text className="text-lg text-gray-700">
-            //             Cuốn tiều thuyết The Little Prince - Hoàng tử bé kể về
-            //             câu chuyện của một phi công bị rơi máy bay trong sa mạc
-            //             Sahara và được chào đón bởi một cậu bé tuyền bồ minh là
-            //             một hoàng tử nhỏ, từ một hành tinh khác đến. Trong quá
-            //             trình sửa chữa máy bay, viên phi công đã biết được câu
-            //             chuyện đời của "hoàng tử nhỏ" và khát khao trở lại hành
-            //             tinh quê hương của mình. Mặc dù được coi là một cuốn
-            //             truyện thiếu nhi. Cuốn tiều thuyết The Little Prince -
-            //             Hoàng tử bé kể về câu chuyện của một phi công bị rơi máy
-            //             bay trong sa mạc Sahara và được chào đón bởi một cậu bé
-            //             tuyền bồ minh là một hoàng tử nhỏ, từ một hành tinh khác
-            //             đến. Trong quá trình sửa chữa máy bay, viên phi công đã
-            //             biết được câu chuyện đời của "hoàng tử nhỏ" và khát khao
-            //             trở lại hành tinh quê hương của mình. Mặc dù được coi là
-            //             một cuốn truyện thiếu nhi
-            //           </Text>
-            //         </ScrollView>
-            //       </VStack>
-
-            //       {/* Action Buttons */}
-            //     </VStack>
-            //     <View className="absolute bottom-20 left-0 right-0 px-4">
-            //       <HStack space="md" className="justify-center">
-            //         <View className="w-20 items-center justify-center">
-            //           <Button className="size-7 bg-transparent">
-            //             <ButtonText>
-            //               <Icon as={HeartIcon} className="text-gray-500" />
-            //             </ButtonText>
-            //           </Button>
-            //         </View>
-            //         <Button className="flex-1 bg-black h-14 rounded-full">
-            //           <ButtonText className="text-white">Tải sách</ButtonText>
-            //         </Button>
-            //       </HStack>
-            //     </View>
-            //   </ActionsheetContent>
-            // </Actionsheet>
             <BookCard
               isBookCardVisible={isBookCardVisible}
               setBookCardVisible={setBookCardVisible}

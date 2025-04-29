@@ -24,7 +24,7 @@ import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { Pressable } from "@/components/ui/pressable";
-import { Icon } from "@/components/ui/icon";
+import { Icon, MenuIcon } from "@/components/ui/icon";
 
 // Wrapper components cho các biểu tượng từ Feather
 const UserIcon = (props: any) => <Feather name="user" {...props} />;
@@ -46,10 +46,10 @@ const Navbar = () => {
     <View className="flex-row justify-between items-center px-4 py-3">
       <View className="flex-row items-center">
         <Button
-          className="w-10 items-center bg-white"
+          className="w-10 h-10 items-center bg-transparent"
           onPress={() => setShowSideBar(true)}
         >
-          <Feather name="menu" size={28} color="black" />
+          <ButtonIcon className="text-black" as={MenuIcon} size="lg" />
         </Button>
         <Drawer
           isOpen={showSideBar}
@@ -102,7 +102,7 @@ const Navbar = () => {
             </DrawerBody>
             <DrawerFooter>
               <Button
-                className="w-full gap-2 mb-8 h-20 bg-white"
+                className="w-full gap-2 mb-8 h-20 bg-white border-transparent"
                 onPress={() => {
                   console.log("Logout");
                   // Xử lý đăng xuất ở đây

@@ -135,7 +135,7 @@ const BookCard: React.FC<BookCardProps> = ({
 
           {/* Action Buttons */}
         </VStack>
-        <View className="absolute bottom-20 left-0 right-0 px-4">
+        <View className="absolute bottom-16 left-0 right-0 px-4">
           <HStack space="md" className="justify-center">
             <View className="w-20 items-center justify-center">
               <Button className="size-7 bg-transparent">
@@ -144,7 +144,7 @@ const BookCard: React.FC<BookCardProps> = ({
                 </ButtonText>
               </Button>
             </View>
-            <Button className="flex-1 bg-black h-14 rounded-full">
+            <Button className="flex-1 bg-black h-16 rounded-full">
               <ButtonText className="text-white">Tải sách</ButtonText>
             </Button>
           </HStack>

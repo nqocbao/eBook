@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Nav } from "@expo/html-elements";
@@ -25,7 +26,10 @@ export default function Setting() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView
+      className="flex-1 bg-gray-100"
+      style={Platform.OS === "android" ? { paddingTop: 40 } : {}}
+    >
       <Navbar />
 
       <ScrollView className="flex-1 px-4 py-6">
@@ -50,25 +54,6 @@ export default function Setting() {
               ios_backgroundColor="#3e3e3e"
               accessibilityLabel="Auto-read content"
               accessibilityHint="Toggle automatic reading of content when opened"
-            />
-          </View>
-
-          <View className="px-4 py-3 flex-row justify-between items-center border-b border-gray-100">
-            <View>
-              <Text className="font-medium text-gray-800">
-                High Contrast Mode
-              </Text>
-              <Text className="text-sm text-gray-500">
-                Increase contrast for better visibility
-              </Text>
-            </View>
-            <Switch
-              value={settings.highContrastMode}
-              trackColor={{ false: "#767577", true: "#D6BCFA" }}
-              thumbColor="#f4f3f4"
-              ios_backgroundColor="#3e3e3e"
-              accessibilityLabel="High contrast mode"
-              accessibilityHint="Toggle high contrast mode for better visibility"
             />
           </View>
 
@@ -138,29 +123,6 @@ export default function Setting() {
             <Feather name="play" size={20} color="#D6BCFA" className="mr-2" />
             <Text className="text-sky-600 font-medium">Test Voice</Text>
           </TouchableOpacity>
-        </View>
-
-        <View className="bg-white rounded-lg overflow-hidden mb-6">
-          <Text className="px-4 py-2 bg-gray-200 font-bold">
-            App Preferences
-          </Text>
-
-          <View className="px-4 py-3 flex-row justify-between items-center border-b border-gray-100">
-            <View>
-              <Text className="font-medium text-gray-800">Notifications</Text>
-              <Text className="text-sm text-gray-500">
-                Receive updates about new content
-              </Text>
-            </View>
-            <Switch
-              value={settings.notificationsEnabled}
-              trackColor={{ false: "#767577", true: "#D6BCFA" }}
-              thumbColor="#f4f3f4"
-              ios_backgroundColor="#3e3e3e"
-              accessibilityLabel="Notifications"
-              accessibilityHint="Toggle notifications for new content"
-            />
-          </View>
         </View>
 
         <TouchableOpacity
