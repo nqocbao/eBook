@@ -2,7 +2,7 @@ import Book from "../../models/book.model";
 import { Request, Response } from "express";
 import Category from "../../models/category.model";
 
-// [GET] /tasks
+// [GET] /books
 export const index = async (req: Request, res: Response) => {
     const find = {
         isPublished: true
@@ -27,7 +27,7 @@ export const index = async (req: Request, res: Response) => {
     // Hết Sắp xếp theo tiêu chí
 
     // Phân trang
-    let limitItems: number = 10;
+    let limitItems: number = 1000;
     if(req.query.limitItems) {
         limitItems = parseInt(`${req.query.limitItems}`);
     }
@@ -49,7 +49,7 @@ export const index = async (req: Request, res: Response) => {
     res.json(books);
 }
 
-// [GET] /tasks/detail/:id
+// [GET] /books/detail/:id
 export const detail = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
@@ -59,26 +59,29 @@ export const detail = async (req: Request, res: Response) => {
             isPublished: true
         });
 
-        const categoryOfBook = await Category.findOne({
-            _id: book.category_id
-        }).select("title type");
-
         if (!book) {
-            res.json("Không tồn tại sách cần tìm!");
+            res.status(404).json("Không tồn tại sách cần tìm!");
+            return;
         }
 
-        if (!categoryOfBook) {
-            res.json("Không tồn tại thể loại sách");
+        const categoryIds = book.category_id || [];
+        const categoryWithTitle = await Category.find({
+            _id: { $in: categoryIds }
+        }).select("_id title description");
+
+        if (categoryWithTitle.length === 0) {
+            res.status(404).json("Không tồn tại thể loại sách");
+            return;
         }
 
         res.json({
             book: book,
-            categoryOfBook: categoryOfBook
+            categoryOfBook: categoryWithTitle
         });
     } catch (error) {
         console.log(error);
         res.json({
-            message: "Lỗi tìm phim",
+            message: "Lỗi tìm sách",
             error: error
         });
     }

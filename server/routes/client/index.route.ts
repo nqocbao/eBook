@@ -4,6 +4,7 @@ import { newsRoute } from "./news.route";
 import { userRoute } from "./user.route";
 import { favoriteRoute } from "./favorite.route";
 import { readingProgressRoute } from "./reading-progress.route";
+import { ttsRoute } from "./text-to-speech.route";
 
 import { requireAuth } from "../../middlewares/client/user.middleware";
 
@@ -20,4 +21,6 @@ export const routesClient = (app: Express) => {
   app.use(`${prefix}/favorites`, requireAuth, favoriteRoute);
 
   app.use(`${prefix}/reading-progress`, requireAuth, readingProgressRoute);
+
+  app.use(`${prefix}/tts`, requireAuth, ttsRoute);
 }
