@@ -28,7 +28,7 @@ export const index = async (req: Request, res: Response) => {
     // Hết Sắp xếp theo tiêu chí
 
     // Phân trang
-    let limitItems: number = 10;
+    let limitItems: number = 1000;
     if(req.query.limitItems) {
         limitItems = parseInt(`${req.query.limitItems}`);
     }

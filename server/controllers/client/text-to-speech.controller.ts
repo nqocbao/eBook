@@ -1,114 +1,57 @@
-// import say from "say";
-
-// const books = [
-//     { id: 1, title: 'Dế Mèn Phiêu Lưu Ký', content: 'Hello World' },
-//     { id: 2, title: 'Tắt Đèn', content: 'Chị Dậu run rẩy bước ra khỏi nhà...' }
-// ];
-
-// const gTTS = require('node-gtts')('vi'); // vi = Vietnamese
-// const path = require('path');
-
-// const filePath = path.join(__dirname, 'output.mp3');
-// gTTS.save(filePath, 'Xin chào, tôi là trình đọc màn hình.', () => {
-//   console.log('Audio đã lưu. Đang phát...');
-//   require('child_process').exec(`start ${filePath}`); // Windows: mở file
-// });
-
-// import fs from 'fs';
-// import path from 'path';
-// import { exec } from 'child_process';
-// import axios from "axios";
-
-// app.post('/api/tts', async (req: Request, res: Response) => {
-//     const text = req.body.text;
-//     const apiKey = "AIzaSyDrIlFfF5Qx3kWIGqvTVv76gGYeWm18N-0";
-//     const endpoint = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${apiKey}`;
-
-//     const payload = {
-//         audioConfig: {
-//             audioEncoding: "MP3",
-//             effectsProfileId: ["small-bluetooth-speaker-class-device"],
-//             pitch: 0,
-//             speakingRate: 1
-//         },
-//         input: {
-//             text: text
-//         },
-//         voice: {
-//             languageCode: "en-US",
-//             name: "en-US-Chirp3-HD-Achernar"
-//         }
-//     };
-
-//     try {
-//         const response = await axios.post(endpoint, payload);
-//         const audioContent = response.data.audioContent;
-
-//         if (!audioContent) {
-//             res.status(500).json({ error: "No audio content received" });
-//             return;
-//         }
-
-//         // 🧠 Lưu file MP3 tạm thời
-//         const outputPath = path.join(__dirname, 'output.mp3');
-//         fs.writeFileSync(outputPath, audioContent, 'base64');
-//         console.log("✅ Audio saved to:", outputPath);
-
-//         // 🔊 Phát âm thanh (tùy hệ điều hành)
-//         const command = process.platform === "win32"
-//             ? `start ${outputPath}`              // Windows
-//             : process.platform === "darwin"
-//                 ? `afplay ${outputPath}`         // macOS
-//                 : `mpg123 ${outputPath}`;        // Linux
-
-//         exec(command, (err) => {
-//             if (err) {
-//                 console.error("❌ Failed to play sound:", err.message);
-//             } else {
-//                 console.log("🔊 Audio is playing...");
-//             }
-//         });
-
-//         res.json({ success: true, message: "Audio played" });
-
-//     } catch (error: any) {
-//         console.error("❌ TTS API error:", error.message);
-//         res.status(500).json({ error: "Google TTS API failed" });
-//     }
-// });
 import { Request, Response } from "express";
 import axios from "axios";
+import fs from "fs";
+const speech = require('@google-cloud/speech');
+
 import dotenv from "dotenv";
 dotenv.config();
 
 // [POST] /tts
+// [POST] /tts
 export const getAudio = async (req: Request, res: Response) => {
     const text = req.body.text;
+    const language = req.body.language || 'vi-VN';
+    const gender = req.body.gender?.toUpperCase() == 'FEMALE' ? 'FEMALE' : 'MALE';
     const apiKey = process.env.GOOGLE_KEY;
-    const endpoint = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${apiKey}`;
-    const payload = {
-        "audioConfig": {
-          "audioEncoding": "MP3",
-          "effectsProfileId": [
-            "small-bluetooth-speaker-class-device"
-          ],
-          "pitch": 0,
-          "speakingRate": 1
-        },
-        "input": {
-          "text": text
-        },
-        "voice": {
-          "languageCode": "en-US",
-          "name": "en-US-Chirp3-HD-Achernar"
-        }
-    }
 
-    // try {
-        const response = await axios.post(endpoint, payload);
+    // Dùng endpoint v1beta1
+    const voicesEndpoint = `https://texttospeech.googleapis.com/v1beta1/voices?key=${apiKey}`;
+
+    try {
+        // Lấy danh sách các voice từ v1beta1
+        const voicesRes = await axios.get(voicesEndpoint);
+        const voices = voicesRes.data.voices;
+
+        // Lọc giọng theo ngôn ngữ và giới tính
+        const matchedVoice = voices.find(v =>
+            v.languageCodes.includes(language) && v.ssmlGender === gender
+        );
+
+        if (!matchedVoice) {
+            res.status(400).json({ error: "Không tìm thấy giọng đọc phù hợp." });
+            return;
+        }
+
+        // Gửi request synthesize từ v1beta1
+        const synthesizeEndpoint = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${apiKey}`;
+        const payload = {
+            audioConfig: {
+                audioEncoding: "MP3",
+                effectsProfileId: ["small-bluetooth-speaker-class-device"],
+                pitch: 0,
+                speakingRate: 1
+            },
+            input: { text },
+            voice: {
+                languageCode: language,
+                name: matchedVoice.name
+            }
+        };
+
+        const response = await axios.post(synthesizeEndpoint, payload);
         res.json(response.data);
-    // } catch (error: any) {
-    //     console.error("Error calling Google API:", error.response?.data || error.message);
-    //     res.status(500).json({ error: "Google TTS API failed" });
-    // }
-}
+    } catch (error: any) {
+        console.error("Lỗi khi gọi API Google TTS:", error.response?.data || error.message);
+        res.status(500).json({ error: "Google TTS API thất bại" });
+    }
+};

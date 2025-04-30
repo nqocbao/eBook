@@ -20,12 +20,18 @@ const bookSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      likes: {
+        type: String
+      },
+      read: {
+        type: String
+      },
       content: {
         type: String,
         required: true,
       },
       category_id: {
-        type: String,
+        type: Array,
         required: true,
       },
       isPublished: {

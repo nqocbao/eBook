@@ -30,7 +30,7 @@ export const index = async (req: Request, res: Response) => {
     // Hết Sắp xếp theo tiêu chí
 
     // Phân trang
-    let limitItems: number = 10;
+    let limitItems: number = 1000;
     if(req.query.limitItems) {
         limitItems = parseInt(`${req.query.limitItems}`);
     }
@@ -67,7 +67,7 @@ export const index = async (req: Request, res: Response) => {
         };
     }));
 
-    res.json(favoritesWithTitle);
+    res.status(200).json(favoritesWithTitle);
 }
 
 // [POST] /favorite/add/:doc_id
@@ -102,13 +102,13 @@ export const addDoc = async (req: Request, res: Response) => {
                 await favorite.save();
             }
             else {
-                res.json({
+                res.status(404).json({
                     message: "Document cần thêm vào danh sách yêu thích không tồn tại!"
                 });
                 return;
             }
         }
-        res.json({
+        res.status(200).json({
             message: "Thêm document yêu thích thành công!",
             favorite: favorite
         });
