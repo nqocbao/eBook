@@ -31,14 +31,17 @@ interface BookCardProps {
   isBookCardVisible: boolean;
   setBookCardVisible: (isBookCardVisible: boolean) => void;
   book: {
-    id: number;
+    _id: string;
     title: string;
     author: string;
-    cover: string;
+    category_id: string[];
+    thumbnail: string;
     pages?: number;
     reads?: string;
     likes?: string;
     description?: string;
+    content?: string;
+    isPublished?: boolean;
   };
 }
 
@@ -77,7 +80,7 @@ const BookCard: React.FC<BookCardProps> = ({
       <ActionsheetContent className="flex flex-col rounded-tl-3xl rounded-tr-3xl">
         <Image
           source={{
-            uri: book.cover,
+            uri: book.thumbnail,
           }}
           resizeMode="stretch"
           className="absolute top-0 left-0 right-0 bottom-0 w-full h-full items-center justify-center rounded-tl-3xl opacity-10 rounded-tr-3xl"
@@ -100,7 +103,7 @@ const BookCard: React.FC<BookCardProps> = ({
             <Box className="w-[150px] h-[200px] border border-solid border-outline-300 rounded-sm">
               <Image
                 source={{
-                  uri: book.cover,
+                  uri: book.thumbnail,
                 }} // Replace with the actual book cover URL
                 resizeMode="stretch"
                 className="flex-1"
