@@ -2,6 +2,7 @@ import { Express } from "express";
 import { bookRoute } from "./book.route";
 import { newsRoute } from "./news.route";
 import { userRoute } from "./user.route";
+import { categoryRoute } from "./category.route";
 import { favoriteRoute } from "./favorite.route";
 import { readingProgressRoute } from "./reading-progress.route";
 import { historyRoute } from "./history.route";
@@ -18,6 +19,8 @@ export const routesClient = (app: Express) => {
   app.use(`${prefix}/news`, newsRoute);
 
   app.use(`${prefix}/users`, userRoute);
+
+  app.use(`${prefix}/categories`, categoryRoute);
 
   app.use(`${prefix}/favorites`, requireAuth, favoriteRoute);
 
