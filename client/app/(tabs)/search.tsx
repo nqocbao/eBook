@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Image,
   Text as RNText,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -58,13 +59,16 @@ export default function SearchScreen() {
     const fetchBooks = async () => {
       setLoading(true);
       setError(null);
+
+      // Xác định API URL tùy theo nền tảng
+      const API_URL =
+        Platform.OS !== "android"
+          ? "http://192.168.1.3:5000/api/client/"
+          : "http://10.0.2.2:5000/api/client/";
+
       try {
-        const booksResponse = await fetch(
-          "http://10.0.2.2:5000/api/client/books/"
-        );
-        const categoriesResponse = await fetch(
-          "http://10.0.2.2:5000/api/client/categories/"
-        );
+        const booksResponse = await fetch(`${API_URL}books/`);
+        const categoriesResponse = await fetch(`${API_URL}categories/`);
         const booksData = await booksResponse.json();
         const categoriesData = await categoriesResponse.json();
         setBooks(booksData);

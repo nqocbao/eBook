@@ -9,6 +9,7 @@ import {
   ImageBackground,
   Platform,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Text } from "@/components/ui/text";
@@ -20,8 +21,8 @@ import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { HeartIcon, PlayIcon } from "lucide-react-native";
 import axios from "axios";
+import ListenCard from "../components/ListenCard";
 
-// Danh sách chuyên mục (có thể load động từ API)
 interface Category {
   _id: string;
   title: string;
@@ -44,118 +45,9 @@ interface Book {
   isPublished?: boolean;
 }
 
-// Danh sách gợi ý (có thể load động từ API)
-// const recommended: Book[] = [
-//   {
-//     id: 1,
-//     title: "Hoàng tử bé",
-//     author: "Antoine de Saint-Exupéry",
-//     category: ["Fantasy", "Drama"],
-//     cover:
-//       "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
-//     pages: 150,
-//     reads: "75.0K",
-//     likes: "12.0K",
-//     description: `Cuốn tiều thuyết The Little Prince - Hoàng tử bé kể về câu chuyện của một phi công bị rơi máy bay trong sa mạc Sahara và được chào đón bởi một cậu bé tuyền bồ minh là một hoàng tử nhỏ, từ một hành tinh khác đến...`,
-//   },
-//   {
-//     id: 2,
-//     title: "48 Nguyên Tắc Chủ Chốt Của Quyền Lực",
-//     author: "Robert Greene",
-//     category: ["Other"],
-//     cover:
-//       "https://i.pinimg.com/736x/93/07/1f/93071f129b107483d82d6a3019eeed84.jpg",
-//     pages: 480,
-//     reads: "69.5K",
-//     likes: "10.0K",
-//     description:
-//       "Qua nghiên cứu lịch sử nhân loại, với những nhân vật có quyền lực nhất tự cổ chí kim, Robert Greene đã khái quát nên 48 nguyên tắc tạo nên quyền lực một cách có cơ sở khoa học...",
-//   },
-//   {
-//     id: 3,
-//     title: "Tư Duy Nhanh Và Chậm",
-//     author: "Daniel Kahneman",
-//     category: ["Other"],
-//     cover:
-//       "https://i.pinimg.com/736x/eb/58/a3/eb58a346f50d2d1776ac44657a6c1856.jpg",
-//     pages: 512,
-//     reads: "50.2K",
-//     likes: "8.5K",
-//     description:
-//       "Cuốn sách Tư duy nhanh và chậm bàn sâu về sự sai lệch của trực giác, những giới hạn của đầu óc con người khi sử dụng phương pháp tư duy nhanh...",
-//   },
-//   {
-//     id: 4,
-//     title: "Sapiens: Lược Sử Loài Người",
-//     author: "Yuval Noah Harari",
-//     category: ["Other", "Drama"],
-//     cover:
-//       "https://i.pinimg.com/736x/8e/fc/81/8efc816a45a3c671ad594240cb3368bf.jpg",
-//     pages: 443,
-//     reads: "75.0K",
-//     likes: "12.0K",
-//     description:
-//       "“Sapiens: Lược sử loài người” đưa chúng ta vào một chuyến đi kinh ngạc qua toàn bộ lịch sử loài người, từ những gốc rễ tiến hóa của nó đến thời đại của chủ nghĩa tư bản và kỹ thuật di truyền...",
-//   },
-// ];
-
-// // Danh sách sách mới xuất bản (cập nhật thêm thông tin)
-// const newReleases: Book[] = [
-//   {
-//     id: 1,
-//     title: "Hoàng tử bé",
-//     author: "Antoine de Saint-Exupéry",
-//     category: ["Fantasy", "Drama"],
-//     cover:
-//       "https://i.pinimg.com/736x/73/fe/f2/73fef2d17b9f311e713bee4bcba584d7.jpg",
-//     pages: 150,
-//     reads: "75.0K",
-//     likes: "12.0K",
-//     description: `Cuốn tiều thuyết The Little Prince - Hoàng tử bé kể về câu chuyện của một phi công bị rơi máy bay trong sa mạc Sahara và được chào đón bởi một cậu bé tuyền bồ minh là một hoàng tử nhỏ, từ một hành tinh khác đến...`,
-//   },
-//   {
-//     id: 2,
-//     title: "48 Nguyên Tắc Chủ Chốt Của Quyền Lực",
-//     author: "Robert Greene",
-//     category: ["Other"],
-//     cover:
-//       "https://i.pinimg.com/736x/93/07/1f/93071f129b107483d82d6a3019eeed84.jpg",
-//     pages: 480,
-//     reads: "69.5K",
-//     likes: "10.0K",
-//     description:
-//       "Qua nghiên cứu lịch sử nhân loại, với những nhân vật có quyền lực nhất tự cổ chí kim, Robert Greene đã khái quát nên 48 nguyên tắc tạo nên quyền lực một cách có cơ sở khoa học...",
-//   },
-//   {
-//     id: 3,
-//     title: "Tư Duy Nhanh Và Chậm",
-//     author: "Daniel Kahneman",
-//     category: ["Other"],
-//     cover:
-//       "https://i.pinimg.com/736x/eb/58/a3/eb58a346f50d2d1776ac44657a6c1856.jpg",
-//     pages: 512,
-//     reads: "50.2K",
-//     likes: "8.5K",
-//     description:
-//       "Cuốn sách Tư duy nhanh và chậm bàn sâu về sự sai lệch của trực giác, những giới hạn của đầu óc con người khi sử dụng phương pháp tư duy nhanh...",
-//   },
-//   {
-//     id: 4,
-//     title: "Sapiens: Lược Sử Loài Người",
-//     author: "Yuval Noah Harari",
-//     category: ["Other", "Drama"],
-//     cover:
-//       "https://i.pinimg.com/736x/8e/fc/81/8efc816a45a3c671ad594240cb3368bf.jpg",
-//     pages: 443,
-//     reads: "75.0K",
-//     likes: "12.0K",
-//     description:
-//       "“Sapiens: Lược sử loài người” đưa chúng ta vào một chuyến đi kinh ngạc qua toàn bộ lịch sử loài người, từ những gốc rễ tiến hóa của nó đến thời đại của chủ nghĩa tư bản và kỹ thuật di truyền...",
-//   },
-// ];
-
 export default function HomeScreen() {
   const [isBookCardVisible, setBookCardVisible] = useState(false);
+  const [isListenCardVisible, setListenCardVisible] = useState(false);
   const [selectBook, setSelectedBook] = useState<Book | null>(null);
   const [recommended, setRecommended] = useState<Book[]>([]);
   const [newReleases, setNewReleases] = useState<Book[]>([]);
@@ -168,8 +60,18 @@ export default function HomeScreen() {
     const fetchBooks = async () => {
       setLoading(true);
       setError(null);
+
+      // Xác định API URL tùy theo nền tảng
+      const API_URL =
+        Platform.OS !== "android"
+          ? "http://192.168.1.3:5000/api/client/books/"
+          : "http://10.0.2.2:5000/api/client/books/";
+
       try {
-        const response = await fetch("http://10.0.2.2:5000/api/client/books/");
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
         const data = await response.json();
         setNewReleases(data.slice(0, 4)); // Lấy 4 sách mới xuất bản
         setRecommended(data.slice(5, 8)); // Lấy 4 sách gợi ý
@@ -180,13 +82,17 @@ export default function HomeScreen() {
         setLoading(false);
       }
     };
+
     fetchBooks();
   }, []);
 
-  const handleReading = (book: any) => {
+  const handleReading = (book: Book) => {
     speak(`Đang chuyển hướng qua đọc sách ${book.title}.`);
     console.log(`Đọc sách: ${book.title}`);
+    setSelectedBook(book);
+    setListenCardVisible(true); // Hiển thị ListenCard khi nhấn "Nghe thử"
   };
+
   // Giao diện khi đang tải
   if (loading) {
     return (
@@ -243,7 +149,11 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   key={item._id}
                   className="pr-4"
-                  onPress={() => console.log("Xem chi tiết sách:", item.title)}
+                  onPress={() => {
+                    console.log("Xem chi tiết sách:", item.title);
+                    setSelectedBook(item);
+                    setBookCardVisible(true);
+                  }}
                 >
                   <View className="bg-white rounded-lg overflow-hidden w-72 h-96 mb-2 shadow-md">
                     <Image
@@ -269,7 +179,10 @@ export default function HomeScreen() {
                       setBookCardVisible(true);
                     }}
                   >
-                    <RNText className="text-white text-center font-semibold">
+                    <RNText
+                      className="text-white text-center font-semibold"
+                      onPress={() => handleReading(item)}
+                    >
                       Nghe thử
                     </RNText>
                   </TouchableOpacity>
@@ -289,7 +202,11 @@ export default function HomeScreen() {
                 <TouchableOpacity
                   key={item._id}
                   className=" w-full"
-                  onPress={() => console.log("Xem chi tiết sách:", item.title)}
+                  onPress={() => {
+                    console.log("Xem chi tiết sách:", item.title);
+                    setSelectedBook(item);
+                    setBookCardVisible(true);
+                  }}
                 >
                   <HStack space="sm" reversed={false} className="mb-4">
                     <View className=" rounded-lg overflow-hidden w-52 h-72 shadow-md">
@@ -328,7 +245,7 @@ export default function HomeScreen() {
                           onPress={() => {
                             console.log("Xem chi tiết sách...");
                             setSelectedBook(item);
-                            setBookCardVisible(true);
+                            setListenCardVisible(true);
                           }}
                         >
                           <ButtonIcon as={PlayIcon}></ButtonIcon>
@@ -349,6 +266,17 @@ export default function HomeScreen() {
               book={selectBook!}
             />
           )}
+
+          {/* Hiển thị Listen Card */}
+
+          {selectBook && (
+            <ListenCard
+              book={selectBook}
+              isListenCardVisible={isListenCardVisible}
+              setListenCardVisible={setListenCardVisible}
+            />
+          )}
+
           {/* Khoảng trống để tránh bị che khuất bởi thanh tab bar */}
           <View className="h-20" />
         </ScrollView>
