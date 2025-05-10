@@ -21,6 +21,7 @@ import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { HeartIcon } from "lucide-react-native";
+import ListenCard from "./ListenCard";
 // Hàm TTS
 const speak = (text: string): void => {
   Speech.speak(text, { language: "vi" });
@@ -51,6 +52,7 @@ const BookCard: React.FC<BookCardProps> = ({
   book,
 }) => {
   const [isFavorited, setIsFavorited] = useState(false);
+  const [isShowListenCard, setShowListenCard] = useState(false);
 
   const handleFavorite = () => {
     setIsFavorited((prev) => {
@@ -147,11 +149,21 @@ const BookCard: React.FC<BookCardProps> = ({
                 </ButtonText>
               </Button>
             </View>
-            <Button className="flex-1 bg-black h-16 rounded-full">
+            <Button
+              className="flex-1 bg-black h-16 rounded-full"
+              onPress={() => setShowListenCard(true)}
+            >
               <ButtonText className="text-white">Tải sách</ButtonText>
             </Button>
           </HStack>
         </View>
+        {isShowListenCard && (
+          <ListenCard
+            book={book}
+            isListenCardVisible={isShowListenCard}
+            setListenCardVisible={setShowListenCard}
+          />
+        )}
       </ActionsheetContent>
     </Actionsheet>
   );

@@ -20,6 +20,7 @@ import { SearchIcon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import BookCard from "../components/BookCard";
+import { API_URL } from "@/constants/config";
 
 interface Category {
   _id: string;
@@ -61,14 +62,11 @@ export default function SearchScreen() {
       setError(null);
 
       // Xác định API URL tùy theo nền tảng
-      const API_URL =
-        Platform.OS !== "android"
-          ? "http://192.168.1.3:5000/api/client/"
-          : "http://10.0.2.2:5000/api/client/";
-
       try {
-        const booksResponse = await fetch(`${API_URL}books/`);
-        const categoriesResponse = await fetch(`${API_URL}categories/`);
+        const booksResponse = await fetch(`${API_URL}/api/client/books/`);
+        const categoriesResponse = await fetch(
+          `${API_URL}/api/client/categories/`
+        );
         const booksData = await booksResponse.json();
         const categoriesData = await categoriesResponse.json();
         setBooks(booksData);

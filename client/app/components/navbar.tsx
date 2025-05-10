@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -19,28 +19,84 @@ import {
   DrawerHeader,
 } from "@/components/ui/drawer";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Home, LogOut, User } from "lucide-react-native";
+import { Home, LogIn, LogOut, User } from "lucide-react-native";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { Pressable } from "@/components/ui/pressable";
-import { Icon, MenuIcon } from "@/components/ui/icon";
+import {
+  CloseIcon,
+  EditIcon,
+  Icon,
+  MenuIcon,
+  TrashIcon,
+} from "@/components/ui/icon";
+import { API_URL } from "@/constants/config";
+import {
+  Modal,
+  ModalBackdrop,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@/components/ui/modal";
+import { Heading } from "@/components/ui/heading";
+import { Box } from "@/components/ui/box";
+import {
+  AlertDialog,
+  AlertDialogBackdrop,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+} from "@/components/ui/alert-dialog";
+import { Input, InputField } from "@/components/ui/input";
+import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Wrapper components cho các biểu tượng từ Feather
 const UserIcon = (props: any) => <Feather name="user" {...props} />;
 const HomeIcon = (props: any) => <Feather name="home" {...props} />;
-const ShoppingCartIcon = (props: any) => (
-  <Feather name="shopping-cart" {...props} />
-);
-const CreditCardIcon = (props: any) => (
-  <Feather name="credit-card" {...props} />
-);
 const StarIcon = (props: any) => <Feather name="star" {...props} />;
 const PhoneIcon = (props: any) => <Feather name="phone" {...props} />;
 const LogOutIcon = (props: any) => <Feather name="log-out" {...props} />;
 
 const Navbar = () => {
   const [showSideBar, setShowSideBar] = useState(false);
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [isShowLoginCard, setShowLoginCard] = useState(false);
+  const [isShowLogoutCard, setShowLogoutCard] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: "", email: "" });
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
+        setLoggedIn(true);
+        // fetchUserInfo(token);
+      } else {
+        setLoggedIn(false);
+      }
+    };
+    checkToken();
+  }, []);
+
+  const handleLogOut = () => {
+    AsyncStorage.removeItem("token");
+    console.log("Logout");
+    setUserInfo({ name: "", email: "" });
+    setShowLogoutCard(false);
+    setLoggedIn(false);
+  };
+
+  const fetchUserInfo = async (token: string | null) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/`);
+    } catch (error) {
+      console.log("Lỗi nè: ", error);
+    }
+  };
 
   return (
     <View className="flex-row justify-between items-center px-4 py-3">
@@ -49,22 +105,22 @@ const Navbar = () => {
           className="w-10 h-10 items-center bg-transparent"
           onPress={() => setShowSideBar(true)}
         >
-          <ButtonIcon className="text-black" as={MenuIcon} size="lg" />
+          <ButtonIcon className="text-black size-10" as={MenuIcon} />
         </Button>
         <Drawer
           isOpen={showSideBar}
           onClose={() => setShowSideBar(false)}
           size="sm"
           anchor="left"
-          className="w-full h-screen"
+          className="w-full h-full"
         >
           <DrawerBackdrop
-            className="w-full h-screen"
+            className="w-full h-full"
             onPress={() => {
               setShowSideBar(false);
             }}
           />
-          <DrawerContent className="w-1/2 h-screen">
+          <DrawerContent className="w-1/2 h-full">
             <DrawerHeader className="justify-center flex-col gap-2 mt-12">
               <Avatar className="w-24 h-24">
                 {/* <AvatarFallbackText>User Image</AvatarFallbackText> */}
@@ -101,19 +157,74 @@ const Navbar = () => {
               </Pressable>
             </DrawerBody>
             <DrawerFooter>
-              <Button
-                className="w-full gap-2 mb-8 h-20 bg-white border-transparent"
-                onPress={() => {
-                  console.log("Logout");
-                  // Xử lý đăng xuất ở đây
+              {!isLoggedIn && (
+                <Button
+                  className="w-full gap-2 mb-8 h-20 bg-white border-transparent"
+                  onPress={() => {
+                    console.log("Login");
+                    setShowSideBar(false);
+                    router.push("/auth/login");
+                  }}
+                  variant="outline"
+                >
+                  <ButtonText className="text-gray-600">Login</ButtonText>
+                  <ButtonIcon className="text-gray-600" as={LogIn} />
+                </Button>
+              )}
+              {isLoggedIn && (
+                <Button
+                  className="w-full gap-2 mb-8 h-20 bg-white border-transparent"
+                  onPress={() => setShowLogoutCard(true)}
+                  variant="outline"
+                >
+                  <ButtonText className="text-gray-600">Logout</ButtonText>
+                  <ButtonIcon className="text-gray-600" as={LogOut} />
+                </Button>
+              )}
+
+              <AlertDialog
+                isOpen={isShowLogoutCard}
+                onClose={() => {
+                  setShowLogoutCard(false);
+                  setLoggedIn(false);
                 }}
-                variant="outline"
+                className="h-full w-full"
               >
-                <ButtonText className="text-gray-600">Logout</ButtonText>
-                <ButtonIcon className="text-gray-600" as={LogOut} />
-              </Button>
+                <AlertDialogBackdrop />
+                <AlertDialogContent className="px-4 pt-1 h-56 w-4/5 items-start justify-center">
+                  <AlertDialogHeader className="w-full gap-2">
+                    <Heading className="text-xl">Logout</Heading>
+                    <AlertDialogCloseButton>
+                      <Icon as={CloseIcon} className="size-6" />
+                    </AlertDialogCloseButton>
+                  </AlertDialogHeader>
+                  <AlertDialogBody>
+                    <Text className="text-lg">
+                      Are you sure, you want to logout?
+                    </Text>
+                  </AlertDialogBody>
+                  <AlertDialogFooter className="w-full flex-row justify-end mr-2 pb-3">
+                    <Button
+                      variant="outline"
+                      action="secondary"
+                      onPress={() => setShowLogoutCard(false)}
+                      className="h-14 w-24"
+                    >
+                      <ButtonText>Cancel</ButtonText>
+                    </Button>
+                    <Button
+                      action="negative"
+                      onPress={handleLogOut}
+                      className="h-14 w-24"
+                    >
+                      <ButtonText className="text-white">Logout</ButtonText>
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </DrawerFooter>
           </DrawerContent>
+          <DrawerFooter></DrawerFooter>
         </Drawer>
       </View>
       {/* Logo */}

@@ -20,8 +20,8 @@ import BookCard from "../components/BookCard";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { HeartIcon, PlayIcon } from "lucide-react-native";
-import axios from "axios";
 import ListenCard from "../components/ListenCard";
+import { API_URL } from "@/constants/config";
 
 interface Category {
   _id: string;
@@ -62,13 +62,8 @@ export default function HomeScreen() {
       setError(null);
 
       // Xác định API URL tùy theo nền tảng
-      const API_URL =
-        Platform.OS !== "android"
-          ? "http://192.168.1.3:5000/api/client/books/"
-          : "http://10.0.2.2:5000/api/client/books/";
-
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}/api/client/books/`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -76,6 +71,7 @@ export default function HomeScreen() {
         setNewReleases(data.slice(0, 4)); // Lấy 4 sách mới xuất bản
         setRecommended(data.slice(5, 8)); // Lấy 4 sách gợi ý
       } catch (error) {
+        console.log(API_URL);
         console.error("Error fetching data:", error);
         setError("Failed to fetch data");
       } finally {
@@ -95,6 +91,7 @@ export default function HomeScreen() {
 
   // Giao diện khi đang tải
   if (loading) {
+    console.log(API_URL);
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 justify-center items-center">
@@ -129,11 +126,11 @@ export default function HomeScreen() {
     );
   }
   return (
-    <SafeAreaView
-      className="flex-1 bg-white"
-      style={Platform.OS === "android" ? { paddingTop: 40 } : {}}
-    >
-      <View className="w-full h-full">
+    <View className="w-full h-full">
+      <SafeAreaView
+        className="flex-1 bg-white"
+        style={Platform.OS === "android" ? { paddingTop: 40 } : {}}
+      >
         {/* Thanh header trên cùng */}
         <Navbar />
 
@@ -280,7 +277,7 @@ export default function HomeScreen() {
           {/* Khoảng trống để tránh bị che khuất bởi thanh tab bar */}
           <View className="h-20" />
         </ScrollView>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
