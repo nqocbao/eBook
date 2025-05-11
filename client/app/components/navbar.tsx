@@ -67,14 +67,14 @@ const Navbar = () => {
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isShowLoginCard, setShowLoginCard] = useState(false);
   const [isShowLogoutCard, setShowLogoutCard] = useState(false);
-  const [userInfo, setUserInfo] = useState({ name: "", email: "" });
+  const [userInfo, setUserInfo] = useState({ name: "", email: "", avatar: "" });
 
   useEffect(() => {
     const checkToken = async () => {
       const token = await AsyncStorage.getItem("token");
       if (token) {
         setLoggedIn(true);
-        // fetchUserInfo(token);
+        fetchUserInfo(token);
       } else {
         setLoggedIn(false);
       }
@@ -85,14 +85,28 @@ const Navbar = () => {
   const handleLogOut = () => {
     AsyncStorage.removeItem("token");
     console.log("Logout");
-    setUserInfo({ name: "", email: "" });
+    setUserInfo({ name: "", email: "", avatar: "" });
     setShowLogoutCard(false);
     setLoggedIn(false);
   };
 
   const fetchUserInfo = async (token: string | null) => {
     try {
-      const response = await axios.get(`${API_URL}/api/users/`);
+      const response = await fetch(`${API_URL}/api/users/profile`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log("User info:", data);
+      setUserInfo({
+        name: data.fullName,
+        email: data.email,
+        avatar: data.avatar,
+      });
     } catch (error) {
       console.log("Lỗi nè: ", error);
     }
@@ -124,16 +138,26 @@ const Navbar = () => {
             <DrawerHeader className="justify-center flex-col gap-2 mt-12">
               <Avatar className="w-24 h-24">
                 {/* <AvatarFallbackText>User Image</AvatarFallbackText> */}
-                <AvatarImage
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-                  }}
-                />
+                {userInfo.avatar === "" ? (
+                  <AvatarImage
+                    source={{
+                      uri: "https://i.pinimg.com/736x/40/98/2a/40982a8167f0a53dedce3731178f2ef5.jpg",
+                    }}
+                  />
+                ) : (
+                  <AvatarImage
+                    source={{
+                      uri: "https://i.pinimg.com/736x/1c/c3/4b/1cc34b5e1dfa19f99d625a4a171ede20.jpg",
+                    }}
+                  />
+                )}
               </Avatar>
               <VStack className="justify-center items-center">
-                <Text className="text-lg">Bảo Đz</Text>
+                <Text className="text-lg">
+                  {isLoggedIn ? userInfo.name : "Guess"}
+                </Text>
                 <Text className="text-sm text-typography-600">
-                  abc@gmail.com
+                  {isLoggedIn ? userInfo.email : "abc@gmail.com"}
                 </Text>
               </VStack>
             </DrawerHeader>

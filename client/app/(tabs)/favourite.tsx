@@ -308,11 +308,13 @@ export default function FavouriteScreen() {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchData();
-    }, [])
-  );
+  if (isLoggedIn) {
+    useFocusEffect(
+      React.useCallback(() => {
+        fetchData();
+      }, [])
+    );
+  }
 
   // Thành phần hiển thị từng cuốn sách
   const renderBookItem = ({ item }: { item: Book }) => (
@@ -417,25 +419,41 @@ export default function FavouriteScreen() {
       {/* Thanh điều hướng */}
       <Navbar />
 
-      <ScrollView showsVerticalScrollIndicator={false} className="pt-4">
-        {/* Mục Lịch sử */}
-        {renderHistorySection()}
+      {isLoggedIn && (
+        <ScrollView showsVerticalScrollIndicator={false} className="pt-4">
+          {/* Mục Lịch sử */}
+          {renderHistorySection()}
 
-        {/* Mục Đang đọc */}
-        {renderReadingSection()}
+          {/* Mục Đang đọc */}
+          {renderReadingSection()}
 
-        {/* Mục Yêu thích */}
-        {renderFavouriteSection()}
+          {/* Mục Yêu thích */}
+          {renderFavouriteSection()}
 
-        {isBookCardVisible && selectBook && (
-          <BookCard
-            isBookCardVisible={isBookCardVisible}
-            setBookCardVisible={setBookCardVisible}
-            book={selectBook!}
-          />
-        )}
-        <View className="h-20" />
-      </ScrollView>
+          {isBookCardVisible && selectBook && (
+            <BookCard
+              isBookCardVisible={isBookCardVisible}
+              setBookCardVisible={setBookCardVisible}
+              book={selectBook!}
+            />
+          )}
+          <View className="h-20" />
+        </ScrollView>
+      )}
+
+      {!isLoggedIn && (
+        <SafeAreaView className="h-full w-full flex-1 bg-gray-50 justify-center items-center pb-28">
+          <RNText className="text-lg font-bold text-gray-800 mb-4">
+            Vui lòng đăng nhập để có trải nghiệm tốt hơn
+          </RNText>
+          <TouchableOpacity
+            className="bg-blue-500 px-6 py-3 rounded-3xl"
+            onPress={() => router.push("/auth/login")}
+          >
+            <RNText className="text-white font-semibold">Đăng nhập</RNText>
+          </TouchableOpacity>
+        </SafeAreaView>
+      )}
     </SafeAreaView>
   );
 }
