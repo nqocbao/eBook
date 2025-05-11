@@ -22,6 +22,8 @@ import { HStack } from "@/components/ui/hstack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BookCard from "../components/BookCard";
 import { API_URL } from "@/constants/config";
+import { useFocusEffect } from "@react-navigation/native";
+import React from "react";
 
 // Dữ liệu sách mẫu
 interface Book {
@@ -206,111 +208,111 @@ export default function FavouriteScreen() {
     checkToken();
   });
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      const fetchData = async () => {
-        try {
-          const token = await AsyncStorage.getItem("token");
-          console.log("Fetching bookData with token: ", token);
+  const fetchData = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      console.log("Fetching bookData with token: ", token);
 
-          const responseHistory = await fetch(
-            `${API_URL}/api/client/history/`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+      const responseHistory = await fetch(`${API_URL}/api/client/history/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-          const responseReading = await fetch(
-            `${API_URL}/api/client/reading-progress/`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const responseFavorite = await fetch(
-            `${API_URL}/api/client/favorites/`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          // nhả lỗi nếu fetch lỗi
-          if (!responseHistory.ok) {
-            throw new Error(`HTTP error! Status: ${responseHistory.status}`);
-          }
-          if (!responseReading.ok) {
-            throw new Error(`HTTP error! Status: ${responseReading.status}`);
-          }
-          if (!responseFavorite.ok) {
-            throw new Error(`HTTP error! Status: ${responseFavorite.status}`);
-          }
-
-          // lấy id cho từng hạng mục
-          const historyData = await responseHistory.json();
-          const bookIdHistory = historyData.map((item: any) => item.book_id);
-
-          const readingData = await responseReading.json();
-          const bookIdReading = readingData.map((item: any) => item.doc_id);
-
-          const favoriteData = await responseFavorite.json();
-          const bookIdFavorite = favoriteData.map((item: any) => item.doc_id);
-
-          console.log("Fetched history book IDs: ", bookIdHistory);
-          console.log("Fetched reading book IDs: ", bookIdReading);
-          console.log("Fetched book IDs: ", bookIdFavorite);
-
-          const responseBooks = await fetch(`${API_URL}/api/client/books`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!responseBooks.ok) {
-            throw new Error(`HTTP error! Status: ${responseBooks.status}`);
-          }
-
-          const allBooks = await responseBooks.json();
-
-          // Lọc sách dựa trên danh sách id
-          const filteredHistoryBooks = allBooks.filter((book: any) =>
-            bookIdHistory.includes(book._id)
-          );
-          const filteredReadingBooks = allBooks.filter((book: any) =>
-            bookIdReading.includes(book._id)
-          );
-          const filteredFavoriteBooks = allBooks.filter((book: any) =>
-            bookIdFavorite.includes(book._id)
-          );
-
-          console.log("Filtered history books:", filteredHistoryBooks);
-          console.log("Filtered reading books:", filteredReadingBooks);
-          console.log("Filtered books:", filteredFavoriteBooks);
-
-          // Lưu danh sách sách vào state
-          setHistoryBooks(filteredHistoryBooks);
-          setReadingBooks(filteredReadingBooks);
-          setFavoriteBooks(filteredFavoriteBooks);
-        } catch (err) {
-          console.log("Error fetching data book: ", err);
+      const responseReading = await fetch(
+        `${API_URL}/api/client/reading-progress/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      };
+      );
 
-      fetchData();
+      const responseFavorite = await fetch(`${API_URL}/api/client/favorites/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // nhả lỗi nếu fetch lỗi
+      if (!responseHistory.ok) {
+        throw new Error(`HTTP error! Status: ${responseHistory.status}`);
+      }
+      if (!responseReading.ok) {
+        throw new Error(`HTTP error! Status: ${responseReading.status}`);
+      }
+      if (!responseFavorite.ok) {
+        throw new Error(`HTTP error! Status: ${responseFavorite.status}`);
+      }
+
+      // lấy id cho từng hạng mục
+      const historyData = await responseHistory.json();
+      const sortedHistoryData = historyData.sort(
+        (a: any, b: any) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+      const bookIdHistory = sortedHistoryData.map((item: any) => item.book_id);
+
+      const readingData = await responseReading.json();
+      const bookIdReading = readingData.map((item: any) => item.doc_id);
+
+      const favoriteData = await responseFavorite.json();
+      const bookIdFavorite = favoriteData.map((item: any) => item.doc_id);
+
+      console.log("Fetched history book IDs: ", bookIdHistory);
+      console.log("Fetched reading book IDs: ", bookIdReading);
+      console.log("Fetched book IDs: ", bookIdFavorite);
+
+      const responseBooks = await fetch(`${API_URL}/api/client/books`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!responseBooks.ok) {
+        throw new Error(`HTTP error! Status: ${responseBooks.status}`);
+      }
+
+      const allBooks = await responseBooks.json();
+
+      // Lọc sách dựa trên danh sách id
+      const filteredHistoryBooks = sortedHistoryData
+        .map((historyItem: any) =>
+          allBooks.find((book: any) => book._id === historyItem.book_id)
+        )
+        .filter((book: any) => book !== undefined);
+      const filteredReadingBooks = allBooks.filter((book: any) =>
+        bookIdReading.includes(book._id)
+      );
+      const filteredFavoriteBooks = allBooks.filter((book: any) =>
+        bookIdFavorite.includes(book._id)
+      );
+
+      console.log("Filtered history books:", filteredHistoryBooks);
+      console.log("Filtered reading books:", filteredReadingBooks);
+      console.log("Filtered books:", filteredFavoriteBooks);
+
+      // Lưu danh sách sách vào state
+      setHistoryBooks(filteredHistoryBooks);
+      setReadingBooks(filteredReadingBooks);
+      setFavoriteBooks(filteredFavoriteBooks);
+    } catch (err) {
+      console.log("Error fetching data book: ", err);
     }
-  }, [isLoggedIn]);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   // Thành phần hiển thị từng cuốn sách
   const renderBookItem = ({ item }: { item: Book }) => (

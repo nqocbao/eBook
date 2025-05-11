@@ -22,6 +22,8 @@ import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { HeartIcon } from "lucide-react-native";
 import ListenCard from "./ListenCard";
+import { API_URL } from "@/constants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // Hàm TTS
 const speak = (text: string): void => {
   Speech.speak(text, { language: "vi" });
@@ -54,21 +56,70 @@ const BookCard: React.FC<BookCardProps> = ({
   const [isFavorited, setIsFavorited] = useState(false);
   const [isShowListenCard, setShowListenCard] = useState(false);
 
-  const handleFavorite = () => {
-    setIsFavorited((prev) => {
-      const newState = !prev;
-      speak(
-        newState
-          ? `Đã thêm ${book.title} vào mục yêu thích`
-          : `Đã bỏ ${book.title} khỏi mục yêu thích`
+  const handleAddToFavorites = async (doc_id: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("User is not logged in");
+        alert("Bạn cần đăng nhập để thêm vào danh sách yêu thích!");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/client/favorites/add/${doc_id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      console.log(
-        newState
-          ? `Đã thêm ${book.title} vào mục yêu thích`
-          : `Đã bỏ ${book.title} khỏi mục yêu thích`
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Error adding to favorites:", data.message);
+        alert(data.message || "Không thể thêm vào danh sách yêu thích.");
+        return;
+      }
+
+      console.log("Book added to favorites:", data);
+      alert(data.message || "Thêm vào danh sách yêu thích thành công!");
+    } catch (error) {
+      console.error("Error adding to favorites:", error);
+      alert(
+        "Đã xảy ra lỗi khi thêm vào danh sách yêu thích. Vui lòng thử lại."
       );
-      return newState;
-    });
+    }
+  };
+
+  const handleAddToHistory = async (doc_id: string) => {
+    console.log("API URL:", `${API_URL}/api/client/history/add/${doc_id}`);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        // alert("Bạn cần đăng nhập để đọc sách!");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/client/history/add/${doc_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+
+      console.log("Book added to history:", data);
+    } catch (error) {
+      console.error("Error adding to history:", error);
+      alert("Đã xảy ra lỗi khi thêm sách vào lịch sử. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -143,7 +194,10 @@ const BookCard: React.FC<BookCardProps> = ({
         <View className="absolute bottom-16 left-0 right-0 px-4">
           <HStack space="md" className="justify-center">
             <View className="w-20 items-center justify-center">
-              <Button className="size-7 bg-transparent">
+              <Button
+                className="size-7 bg-transparent"
+                onPress={() => handleAddToFavorites(book._id)}
+              >
                 <ButtonText>
                   <Icon as={HeartIcon} className="text-gray-500" />
                 </ButtonText>
@@ -151,9 +205,12 @@ const BookCard: React.FC<BookCardProps> = ({
             </View>
             <Button
               className="flex-1 bg-black h-16 rounded-full"
-              onPress={() => setShowListenCard(true)}
+              onPress={() => {
+                handleAddToHistory(book._id);
+                setShowListenCard(true);
+              }}
             >
-              <ButtonText className="text-white">Tải sách</ButtonText>
+              <ButtonText className="text-white">Đọc sách</ButtonText>
             </Button>
           </HStack>
         </View>

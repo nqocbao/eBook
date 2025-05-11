@@ -22,6 +22,7 @@ import { HStack } from "@/components/ui/hstack";
 import { HeartIcon, PlayIcon } from "lucide-react-native";
 import ListenCard from "../components/ListenCard";
 import { API_URL } from "@/constants/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Category {
   _id: string;
@@ -89,6 +90,71 @@ export default function HomeScreen() {
     setListenCardVisible(true); // Hiển thị ListenCard khi nhấn "Nghe thử"
   };
 
+  const handleAddToFavorites = async (doc_id: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("User is not logged in");
+        alert("Bạn cần đăng nhập để thêm vào danh sách yêu thích!");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/client/favorites/add/${doc_id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Error adding to favorites:", data.message);
+        alert(data.message || "Không thể thêm vào danh sách yêu thích.");
+        return;
+      }
+
+      console.log("Book added to favorites:", data);
+      alert(data.message || "Thêm vào danh sách yêu thích thành công!");
+    } catch (error) {
+      console.error("Error adding to favorites:", error);
+      alert(
+        "Đã xảy ra lỗi khi thêm vào danh sách yêu thích. Vui lòng thử lại."
+      );
+    }
+  };
+
+  const handleAddToHistory = async (doc_id: string) => {
+    console.log("API URL:", `${API_URL}/api/client/history/add/${doc_id}`);
+    try {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        // alert("Bạn cần đăng nhập để đọc sách!");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_URL}/api/client/history/add/${doc_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+
+      console.log("Book added to history:", data);
+    } catch (error) {
+      console.error("Error adding to history:", error);
+      alert("Đã xảy ra lỗi khi thêm sách vào lịch sử. Vui lòng thử lại.");
+    }
+  };
   // Giao diện khi đang tải
   if (loading) {
     console.log(API_URL);
@@ -178,7 +244,10 @@ export default function HomeScreen() {
                   >
                     <RNText
                       className="text-white text-center font-semibold"
-                      onPress={() => handleReading(item)}
+                      onPress={() => {
+                        handleAddToHistory(item._id);
+                        handleReading(item);
+                      }}
                     >
                       Nghe thử
                     </RNText>
@@ -233,6 +302,7 @@ export default function HomeScreen() {
                         <Button
                           className="size-16 rounded-full bg-red-400"
                           size="sm"
+                          onPress={() => handleAddToFavorites(item._id)}
                         >
                           <ButtonIcon as={HeartIcon}></ButtonIcon>
                         </Button>
