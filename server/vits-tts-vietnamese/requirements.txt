@@ -1,0 +1,5 @@
+tornado==6.3.3
+numpy==1.26.4
+onnxruntime==1.15.1
+piper-phonemize==1.1.0
+jsonschema==4.19.1
