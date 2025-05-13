@@ -21,6 +21,10 @@ import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import BookCard from "../components/BookCard";
 import { API_URL } from "@/constants/config";
+import * as Speech from "expo-speech";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
+import { SearchCheckIcon, SearchCodeIcon } from "lucide-react-native";
 
 interface Category {
   _id: string;
@@ -52,6 +56,8 @@ export default function SearchScreen() {
   const [selectBook, setSelectedBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { speechRate } = useSpeechRate();
+  const { readingEnabled } = useReadingMode();
 
   console.log("Rendering SearchScreen");
 
@@ -132,6 +138,15 @@ export default function SearchScreen() {
       </SafeAreaView>
     );
   }
+
+  const speak = (text: string) => {
+    if (readingEnabled) {
+      Speech.speak(text, {
+        rate: parseFloat(speechRate.toString()),
+        language: "vi-VN",
+      });
+    }
+  };
   // Thành phần hiển thị từng cuốn sách
   const renderBookItem = ({ item }: { item: Book }) => (
     <TouchableOpacity
@@ -140,6 +155,13 @@ export default function SearchScreen() {
         console.log("Xem chi tiết sách...");
         setSelectedBook(item);
         setBookCardVisible(true);
+        speak(`Sách: ${item.title}, tác giả: ${item.author}`);
+      }}
+      onLongPress={() =>
+        speak(item.description || "Không có mô tả cho sách này")
+      }
+      onPressOut={() => {
+        Speech.stop(); // Ngắt đọc ngay khi thả tay
       }}
     >
       <View className="bg-white rounded-lg overflow-hidden h-72 shadow-md">
@@ -177,7 +199,10 @@ export default function SearchScreen() {
 
     return (
       <View className="mb-6">
-        <RNText className="text-lg font-bold text-gray-800 px-4 mb-2">
+        <RNText
+          className="text-lg font-bold text-gray-800 px-4 mb-2"
+          onPress={() => speak(`Mục ${category.title}`)}
+        >
           {category.title === "All" ? "Tất cả sách" : category.title}
         </RNText>
         <FlatList
@@ -219,11 +244,19 @@ export default function SearchScreen() {
           </RNText>
           <RNText className="text-xs text-gray-500">{item.author}</RNText>
           <HStack space="xs">
-            {item.category_id.map((cat, index) => (
-              <View key={index} className="bg-gray-200 rounded-full px-2 py-1">
-                <RNText className="text-xs text-gray-700">{cat}</RNText>
-              </View>
-            ))}
+            {item.category_id.map((catId, index) => {
+              const category = categories.find((cat) => cat._id === catId);
+              return (
+                <View
+                  key={index}
+                  className="bg-gray-200 rounded-full px-2 py-1"
+                >
+                  <RNText className="text-xs text-gray-700">
+                    {category ? category.title : catId}
+                  </RNText>
+                </View>
+              );
+            })}
           </HStack>
         </VStack>
       </HStack>
@@ -239,7 +272,7 @@ export default function SearchScreen() {
       <View className="px-4 py-3">
         <Input className="bg-white rounded-lg h-14">
           <InputSlot className="pl-2">
-            <InputIcon as={SearchIcon} className="text-gray-500 size-10" />
+            <InputIcon as={SearchCheckIcon} className="text-gray-500 size-10" />
           </InputSlot>
           <InputField
             placeholder="Tìm kiếm sách"

@@ -23,6 +23,9 @@ import { HeartIcon, PlayIcon } from "lucide-react-native";
 import ListenCard from "../components/ListenCard";
 import { API_URL } from "@/constants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
+import * as Speech from "expo-speech";
 
 interface Category {
   _id: string;
@@ -54,6 +57,8 @@ export default function HomeScreen() {
   const [newReleases, setNewReleases] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { speechRate } = useSpeechRate();
+  const { readingEnabled } = useReadingMode();
   // Debug log để kiểm tra render
   console.log("Rendering HomeScreen");
 
@@ -83,8 +88,21 @@ export default function HomeScreen() {
     fetchBooks();
   }, []);
 
+  const speak = (text: string) => {
+    if (readingEnabled) {
+      Speech.speak(text, {
+        rate: parseFloat(speechRate.toString()),
+        language: "vi-VN",
+      });
+    }
+  };
+
   const handleReading = (book: Book) => {
-    speak(`Đang chuyển hướng qua đọc sách ${book.title}.`);
+    if (readingEnabled) {
+      speak(`Đã chuyển hướng qua đọc sách ${book.title}`, {
+        rate: parseFloat(speechRate),
+      });
+    }
     console.log(`Đọc sách: ${book.title}`);
     setSelectedBook(book);
     setListenCardVisible(true); // Hiển thị ListenCard khi nhấn "Nghe thử"
@@ -94,8 +112,11 @@ export default function HomeScreen() {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("User is not logged in");
+        console.log("User is not logged in");
         alert("Bạn cần đăng nhập để thêm vào danh sách yêu thích!");
+        speak("Bạn cần đăng nhập để thêm vào danh sách yêu thích!", {
+          rate: parseFloat(speechRate),
+        });
         return;
       }
 
@@ -120,6 +141,9 @@ export default function HomeScreen() {
 
       console.log("Book added to favorites:", data);
       alert(data.message || "Thêm vào danh sách yêu thích thành công!");
+      speak(data.message || "Thêm vào danh sách yêu thích thành công!", {
+        rate: parseFloat(speechRate),
+      });
     } catch (error) {
       console.error("Error adding to favorites:", error);
       alert(
@@ -204,7 +228,10 @@ export default function HomeScreen() {
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Khối "Mới xuất bản" hoặc "Nổi bật" */}
           <View className="px-6 mt-2">
-            <RNText className="text-lg font-bold text-gray-800 mb-4">
+            <RNText
+              className="text-lg font-bold text-gray-800 mb-4"
+              onPress={() => speak("Mục Mới xuất bản")}
+            >
               Mới xuất bản
             </RNText>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -214,8 +241,17 @@ export default function HomeScreen() {
                   className="pr-4"
                   onPress={() => {
                     console.log("Xem chi tiết sách:", item.title);
+                    if (readingEnabled) {
+                      speak(`Xem chi tiết sách: ${item.title}`);
+                    }
                     setSelectedBook(item);
                     setBookCardVisible(true);
+                  }}
+                  onLongPress={() =>
+                    speak(item.description || "Không có mô tả cho sách này")
+                  }
+                  onPressOut={() => {
+                    Speech.stop(); // Ngắt đọc ngay khi thả tay
                   }}
                 >
                   <View className="bg-white rounded-lg overflow-hidden w-72 h-96 mb-2 shadow-md">

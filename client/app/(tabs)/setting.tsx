@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,17 +13,62 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { Nav } from "@expo/html-elements";
 import Navbar from "../components/navbar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { speak } from "expo-speech";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
+
+const speechRates = [
+  { label: "Chậm", value: 0.5 },
+  { label: "Bình thường", value: 1 },
+  { label: "Nhanh", value: 1.5 },
+  { label: "Rất nhanh", value: 2 },
+];
 
 export default function Setting() {
   const [settings, setSettings] = useState({
     autoReadEnabled: true,
-    highContrastMode: false,
-    largeTextEnabled: false,
-    speechRate: 0.9,
+
+    speechRate: 1.0,
     voiceType: "default",
-    notificationsEnabled: true,
-    downloadOnWifiOnly: true,
   });
+  const { speechRate, setSpeechRate } = useSpeechRate();
+  const { readingEnabled, setReadingEnabled } = useReadingMode();
+
+  useEffect(() => {
+    AsyncStorage.getItem("speechRate").then((rate) => {
+      if (rate) setSpeechRate(rate);
+    });
+  }, []);
+
+  // Khi thay đổi tốc độ đọc:
+  const handleChangeSpeechRate = async (value: number) => {
+    setSettings((prev) => ({ ...prev, speechRate: value }));
+    setSpeechRate(value.toString());
+    await AsyncStorage.setItem("speechRate", value.toString());
+    console.log(value.toString());
+  };
+
+  const handleTestVoice = () => {
+    speak("Đây là ví dụ đọc thử với tốc độ bạn đã chọn.", {
+      rate: parseFloat(speechRate),
+      language: "vi-VN",
+    });
+  };
+
+  const handleResetSettings = async () => {
+    const defaultSettings = {
+      autoReadEnabled: true,
+      speechRate: 1.0,
+      voiceType: "default",
+    };
+    setSettings(defaultSettings);
+    setSpeechRate("1.0");
+    setReadingEnabled(true);
+    await AsyncStorage.setItem("speechRate", "1.0");
+    await AsyncStorage.setItem("readingEnabled", "true");
+    // Nếu bạn lưu các setting khác vào AsyncStorage, hãy reset chúng ở đây
+  };
 
   return (
     <SafeAreaView
@@ -40,37 +85,17 @@ export default function Setting() {
 
           <View className="px-4 py-3 flex-row justify-between items-center border-b border-gray-100">
             <View>
-              <Text className="font-medium text-gray-800">
-                Auto-Read Content
-              </Text>
+              <Text className="font-medium text-gray-800">Screen Reader</Text>
               <Text className="text-sm text-gray-500">
-                Automatically read content when opened
+                Tự động đọc nội dung khi được mở lên
               </Text>
             </View>
             <Switch
-              value={settings.autoReadEnabled}
-              trackColor={{ false: "#767577", true: "#D6BCFA" }}
+              value={readingEnabled}
+              onValueChange={setReadingEnabled}
+              trackColor={{ false: "#94B4C1", true: "#213448" }}
               thumbColor="#f4f3f4"
               ios_backgroundColor="#3e3e3e"
-              accessibilityLabel="Auto-read content"
-              accessibilityHint="Toggle automatic reading of content when opened"
-            />
-          </View>
-
-          <View className="px-4 py-3 flex-row justify-between items-center">
-            <View>
-              <Text className="font-medium text-gray-800">Large Text</Text>
-              <Text className="text-sm text-gray-500">
-                Increase text size for easier reading
-              </Text>
-            </View>
-            <Switch
-              value={settings.largeTextEnabled}
-              trackColor={{ false: "#767577", true: "#D6BCFA" }}
-              thumbColor="#f4f3f4"
-              ios_backgroundColor="#3e3e3e"
-              accessibilityLabel="Large text"
-              accessibilityHint="Toggle large text for easier reading"
             />
           </View>
         </View>
@@ -80,48 +105,38 @@ export default function Setting() {
             Voice Settings
           </Text>
 
-          <View className="px-4 py-3 border-b border-gray-100">
-            <View className="flex-row justify-between items-center mb-2">
-              <Text className="font-medium text-gray-800">Speech Rate</Text>
-              <Text className="text-sm text-gray-500">
-                {settings.speechRate.toFixed(1)}x
-              </Text>
-            </View>
-            <View className="flex-row justify-between items-center">
+          <View className="flex-row justify-between items-center h-28 mt-2">
+            {speechRates.map((rate) => (
               <TouchableOpacity
-                className="bg-gray-200 rounded-full p-2"
-                accessibilityLabel="Decrease speech rate"
-                accessibilityHint="Make speech slower"
+                key={rate.value}
+                onPress={() => handleChangeSpeechRate(rate.value)}
+                className={` flex-1 h-14 w-20 justify-center items-center rounded-full mx-1 ${
+                  settings.speechRate === rate.value
+                    ? "bg-secondary"
+                    : "bg-gray-200"
+                }`}
               >
-                <Feather name="minus" size={20} color="black" />
+                <Text
+                  className={`${
+                    settings.speechRate === rate.value
+                      ? "text-white"
+                      : "text-gray-800"
+                  } text-xs`}
+                >
+                  {rate.label}
+                </Text>
               </TouchableOpacity>
-
-              <View className="flex-1 h-2 mx-4 bg-gray-200 rounded-full">
-                <View
-                  style={{
-                    width: `${((settings.speechRate - 0.5) / 1.5) * 100}%`,
-                  }}
-                  className="h-2 bg-purple-500 rounded-full"
-                />
-              </View>
-
-              <TouchableOpacity
-                className="bg-gray-200 rounded-full p-2"
-                accessibilityLabel="Increase speech rate"
-                accessibilityHint="Make speech faster"
-              >
-                <Feather name="plus" size={20} color="black" />
-              </TouchableOpacity>
-            </View>
+            ))}
           </View>
 
           <TouchableOpacity
             className="px-4 py-3 flex-row items-center"
             accessibilityLabel="Test voice"
             accessibilityHint="Play a sample of the text-to-speech voice"
+            onPress={handleTestVoice}
           >
-            <Feather name="play" size={20} color="#D6BCFA" className="mr-2" />
-            <Text className="text-sky-600 font-medium">Test Voice</Text>
+            <Feather name="play" size={20} color="#547792" className="mr-2" />
+            <Text className="text-primary font-medium">Test Voice</Text>
           </TouchableOpacity>
         </View>
 
@@ -129,9 +144,10 @@ export default function Setting() {
           className="bg-red-500 rounded-lg py-3 mb-8"
           accessibilityLabel="Reset all settings"
           accessibilityHint="Reset all settings to their default values"
+          onPress={handleResetSettings}
         >
           <Text className="text-white font-bold text-center">
-            Reset All Settings
+            Thiết lập tại mặc định
           </Text>
         </TouchableOpacity>
       </ScrollView>

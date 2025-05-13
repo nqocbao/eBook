@@ -13,6 +13,8 @@ import "../global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { SpeechRateProvider } from "./contexts/SpeechRateContext";
+import { ReadingModeProvider } from "./contexts/ReadingModeContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,11 +38,25 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <GluestackUIProvider mode={colorScheme}>
-        <Stack initialRouteName="auth/login">
-          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
+        <SpeechRateProvider>
+          <ReadingModeProvider>
+            <Stack initialRouteName="auth/login">
+              <Stack.Screen
+                name="auth/login"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="auth/signup"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="components/ListenCard.tsx"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+          </ReadingModeProvider>
+        </SpeechRateProvider>
         <StatusBar style="auto" />
       </GluestackUIProvider>
     </ThemeProvider>

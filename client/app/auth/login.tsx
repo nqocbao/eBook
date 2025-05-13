@@ -27,6 +27,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Box } from "@/components/ui/box";
 import { CheckCircle, CircleX } from "lucide-react-native";
+import * as Speech from "expo-speech";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
 
 interface alertInfo {
   open: boolean;
@@ -42,8 +45,19 @@ export default function LoginScreen() {
   const [error, setError] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [countDown, setCountDown] = useState(3);
+  const { speechRate } = useSpeechRate();
+  const { readingEnabled } = useReadingMode();
   //   const { login } = useAuth();
   const router = useRouter();
+
+  const speak = (text: string) => {
+    if (readingEnabled) {
+      Speech.speak(text, {
+        rate: parseFloat(speechRate.toString()),
+        language: "vi-VN",
+      });
+    }
+  };
 
   useEffect(() => {
     if (showAlert) {
@@ -85,6 +99,7 @@ export default function LoginScreen() {
         } else {
           console.log("Login ok", data);
           setError("done");
+          speak(`Đang chuyển hướng tới trang chủ trong ${countDown} giây`);
           await AsyncStorage.setItem("token", token);
           setShowAlert(true);
           // await login(email, password);

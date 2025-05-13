@@ -33,6 +33,9 @@ import {
   Feather,
 } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Speech from "expo-speech";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
 
 export default function SignUpScreen() {
   const [fullName, setFullName] = useState("");
@@ -44,57 +47,70 @@ export default function SignUpScreen() {
   const [countDown, setCountDown] = useState(3);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { speechRate } = useSpeechRate();
+  const { readingEnabled } = useReadingMode();
+
+  const speak = (text: string) => {
+    if (readingEnabled) {
+      Speech.stop();
+      Speech.speak(text, {
+        rate: parseFloat(speechRate.toString()),
+        language: "vi-VN",
+      });
+    }
+  };
 
   useEffect(() => {
-    if (accessSignUp && error === "done") {
-      const timer = setInterval(() => {
-        setCountDown((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setShowAlert(false);
-            router.replace("/(tabs)");
-            return 0;
-          }
-          return prev - 1;
-        });
+    if (accessSignUp && error === "done" && showAlert) {
+      if (countDown === 0) {
+        setShowAlert(false);
+        router.replace("/(tabs)");
+        return;
+      }
+      const timer = setTimeout(() => {
+        setCountDown((prev) => prev - 1);
       }, 1000);
-
-      return () => clearInterval(timer);
+      return () => clearTimeout(timer);
     }
-  }, [showAlert, router]);
+  }, [accessSignUp, error, showAlert, countDown, router]);
 
   const handleSignUp = async () => {
     const payload = { fullName, email, password };
 
     if (password !== confirmPassword) {
       setError("Mật khẩu và xác nhận mật khẩu chưa khớp!");
+      speak("Mật khẩu và xác nhận mật khẩu chưa khớp!");
       setShowAlert(true);
       return;
     }
 
     if (fullName === "") {
       setError("Hãy nhập thêm thông tin họ và tên");
+      speak("Hãy nhập thêm thông tin họ và tên");
       setShowAlert(true);
       return;
     }
 
     if (email === "") {
       setError("Hãy nhập thêm thông tin email");
+      speak("Hãy nhập thêm thông tin email");
       setShowAlert(true);
       return;
     }
 
     if (password === "") {
       setError("Hãy nhập thêm mật khẩu");
+      speak("Hãy nhập thêm mật khẩu");
       setShowAlert(true);
       return;
     }
 
     if (error === "" && fullName !== "") {
       setShowAlert(true);
+      setCountDown(3); // reset lại mỗi lần mở alert
+      speak(`Đang chuyển hướng tới trang chủ trong 3 giây`);
       setAccessSignUp(true);
     }
-
     try {
       const response = await fetch(`${API_URL}/api/client/users/register`, {
         method: "POST",

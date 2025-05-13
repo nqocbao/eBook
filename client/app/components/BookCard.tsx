@@ -24,6 +24,10 @@ import { HeartIcon } from "lucide-react-native";
 import ListenCard from "./ListenCard";
 import { API_URL } from "@/constants/config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Feather } from "@expo/vector-icons";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
+
 // Hàm TTS
 const speak = (text: string): void => {
   Speech.speak(text, { language: "vi" });
@@ -55,12 +59,24 @@ const BookCard: React.FC<BookCardProps> = ({
 }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [isShowListenCard, setShowListenCard] = useState(false);
+  const { speechRate } = useSpeechRate();
+  const { readingEnabled } = useReadingMode();
+
+  const speak = (text: string) => {
+    if (readingEnabled) {
+      Speech.speak(text, {
+        rate: parseFloat(speechRate.toString()),
+        language: "vi-VN",
+      });
+    }
+  };
 
   const handleAddToFavorites = async (doc_id: string) => {
     try {
       const token = await AsyncStorage.getItem("token");
       if (!token) {
-        console.error("User is not logged in");
+        console.log("User is not logged in");
+        speak("Bạn cần đăng nhập để thêm vào danh sách yêu thích!");
         alert("Bạn cần đăng nhập để thêm vào danh sách yêu thích!");
         return;
       }
@@ -79,15 +95,17 @@ const BookCard: React.FC<BookCardProps> = ({
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Error adding to favorites:", data.message);
+        console.log("Error adding to favorites:", data.message);
+        speak(data.message || "Không thể thêm vào danh sách yêu thích.");
         alert(data.message || "Không thể thêm vào danh sách yêu thích.");
         return;
       }
 
       console.log("Book added to favorites:", data);
-      alert(data.message || "Thêm vào danh sách yêu thích thành công!");
+      speak("Đã thêm vào danh sách yêu thích");
+      alert("Đã thêm vào danh sách yêu thích");
     } catch (error) {
-      console.error("Error adding to favorites:", error);
+      console.log("Error adding to favorites:", error);
       alert(
         "Đã xảy ra lỗi khi thêm vào danh sách yêu thích. Vui lòng thử lại."
       );
@@ -169,15 +187,15 @@ const BookCard: React.FC<BookCardProps> = ({
           {/* Stats (Pages, Views, Likes) */}
           <HStack space="lg" className="justify-center gap-16 mt-4">
             <VStack className="items-center">
-              <Text className="font-bold">{book.pages}</Text>
+              <Text className="font-bold">142</Text>
               <Text className="text-xs text-gray-500">Trang</Text>
             </VStack>
             <VStack className="items-center">
-              <Text className="font-bold">{book.reads}</Text>
+              <Text className="font-bold">14.3k</Text>
               <Text className="text-xs text-gray-500">Lượt đọc</Text>
             </VStack>
             <VStack className="items-center">
-              <Text className="font-bold">{book.likes}</Text>
+              <Text className="font-bold">211k</Text>
               <Text className="text-xs text-gray-500">Yêu thích</Text>
             </VStack>
           </HStack>
@@ -193,19 +211,20 @@ const BookCard: React.FC<BookCardProps> = ({
         </VStack>
         <View className="absolute bottom-16 left-0 right-0 px-4">
           <HStack space="md" className="justify-center">
-            <View className="w-20 items-center justify-center">
+            <View className="h-full items-center justify-center">
               <Button
-                className="size-7 bg-transparent"
+                className="w-14 h-14 bg-red-400 rounded-full"
                 onPress={() => handleAddToFavorites(book._id)}
               >
                 <ButtonText>
-                  <Icon as={HeartIcon} className="text-gray-500" />
+                  <Icon as={HeartIcon} className="text-white" />
                 </ButtonText>
               </Button>
             </View>
             <Button
               className="flex-1 bg-black h-16 rounded-full"
               onPress={() => {
+                speak(`Bắt đầu đọc sách ${book.title}`);
                 handleAddToHistory(book._id);
                 setShowListenCard(true);
               }}

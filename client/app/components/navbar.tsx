@@ -19,7 +19,16 @@ import {
   DrawerHeader,
 } from "@/components/ui/drawer";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Home, LogIn, LogOut, User } from "lucide-react-native";
+import {
+  Home,
+  LogIn,
+  LogOut,
+  PhoneCallIcon,
+  SaveIcon,
+  SearchIcon,
+  SpaceIcon,
+  User,
+} from "lucide-react-native";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
@@ -32,16 +41,7 @@ import {
   TrashIcon,
 } from "@/components/ui/icon";
 import { API_URL } from "@/constants/config";
-import {
-  Modal,
-  ModalBackdrop,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@/components/ui/modal";
 import { Heading } from "@/components/ui/heading";
-import { Box } from "@/components/ui/box";
 import {
   AlertDialog,
   AlertDialogBackdrop,
@@ -51,9 +51,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
 } from "@/components/ui/alert-dialog";
-import { Input, InputField } from "@/components/ui/input";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Speech from "expo-speech";
+import { useSpeechRate } from "../contexts/SpeechRateContext";
+import { useReadingMode } from "../contexts/ReadingModeContext";
 
 // Wrapper components cho các biểu tượng từ Feather
 const UserIcon = (props: any) => <Feather name="user" {...props} />;
@@ -68,6 +70,18 @@ const Navbar = () => {
   const [isShowLoginCard, setShowLoginCard] = useState(false);
   const [isShowLogoutCard, setShowLogoutCard] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", email: "", avatar: "" });
+  const { speechRate } = useSpeechRate();
+  const { readingEnabled } = useReadingMode();
+
+  const speak = (text: string) => {
+    if (readingEnabled) {
+      Speech.stop();
+      Speech.speak(text, {
+        rate: parseFloat(speechRate.toString()),
+        language: "vi-VN",
+      });
+    }
+  };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -85,6 +99,7 @@ const Navbar = () => {
   const handleLogOut = () => {
     AsyncStorage.removeItem("token");
     console.log("Logout");
+    setShowSideBar(false);
     setUserInfo({ name: "", email: "", avatar: "" });
     setShowLogoutCard(false);
     setLoggedIn(false);
@@ -92,7 +107,7 @@ const Navbar = () => {
 
   const fetchUserInfo = async (token: string | null) => {
     try {
-      const response = await fetch(`${API_URL}/api/users/profile`, {
+      const response = await fetch(`${API_URL}/api/client/users/profile`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -103,9 +118,9 @@ const Navbar = () => {
       const data = await response.json();
       console.log("User info:", data);
       setUserInfo({
-        name: data.fullName,
-        email: data.email,
-        avatar: data.avatar,
+        name: data.user.fullName,
+        email: data.user.email,
+        avatar: data.user.avatar,
       });
     } catch (error) {
       console.log("Lỗi nè: ", error);
@@ -147,7 +162,7 @@ const Navbar = () => {
                 ) : (
                   <AvatarImage
                     source={{
-                      uri: "https://i.pinimg.com/736x/1c/c3/4b/1cc34b5e1dfa19f99d625a4a171ede20.jpg",
+                      uri: "https://i.pinimg.com/736x/3d/9d/ed/3d9ded2ceb902b1c5294e6f564b61728.jpg",
                     }}
                   />
                 )}
@@ -161,19 +176,37 @@ const Navbar = () => {
                 </Text>
               </VStack>
             </DrawerHeader>
-            <DrawerBody contentContainerClassName="gap-2">
-              <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                <Icon as={UserIcon} size="lg" className="text-typography-600" />
-                <Text>My Profile</Text>
+            <DrawerBody contentContainerClassName="gap-2 pt-3">
+              <Pressable
+                className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md"
+                onPress={() => {
+                  speak("Đã chuyển hướng tới mục tìm kiếm");
+                  setShowSideBar(false);
+                  router.replace("/(tabs)/search");
+                }}
+              >
+                <Icon
+                  as={SearchIcon}
+                  size="lg"
+                  className="text-typography-600"
+                />
+                <Text>Tìm kiếm</Text>
               </Pressable>
-              <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
-                <Icon as={HomeIcon} size="lg" className="text-typography-600" />
-                <Text>Saved Book</Text>
+              <Pressable
+                className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md"
+                onPress={() => {
+                  speak("Đã chuyển hướng tới mục yêu thích");
+                  setShowSideBar(false);
+                  router.replace("/(tabs)/favourite");
+                }}
+              >
+                <Icon as={SaveIcon} size="lg" className="text-typography-600" />
+                <Text>Space Book</Text>
               </Pressable>
 
               <Pressable className="gap-3 ml-3 md:ml-10 flex-row items-center hover:bg-background-50 p-2 rounded-md">
                 <Icon
-                  as={PhoneIcon}
+                  as={PhoneCallIcon}
                   size="lg"
                   className="text-typography-600"
                 />
@@ -253,8 +286,8 @@ const Navbar = () => {
       </View>
       {/* Logo */}
       <View className="flex-row items-center">
-        <Feather name="book-open" size={28} color="#EF4444" />
-        <RNText className="ml-2 text-xl font-bold text-gray-800">eBook</RNText>
+        <Feather name="book-open" size={28} color="#547792" />
+        <RNText className="ml-2 text-xl font-bold text-primary">eBook</RNText>
       </View>
       {/* Nút tìm kiếm, tài khoản hoặc thông báo */}
       <View className="flex-row items-center">
@@ -262,12 +295,25 @@ const Navbar = () => {
           <Feather name="bell" size={24} color="gray" />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Image
-            source={{ uri: "https://picsum.photos/50" }}
-            className="w-7 ml-3 h-7 rounded-full"
-            resizeMode="cover"
-            onError={() => console.log("Failed to load avatar image")}
-          />
+          {isLoggedIn ? (
+            <Image
+              source={{
+                uri: "https://i.pinimg.com/736x/3d/9d/ed/3d9ded2ceb902b1c5294e6f564b61728.jpg",
+              }}
+              className="w-7 ml-3 h-7 rounded-full"
+              resizeMode="cover"
+              onError={() => console.log("Failed to load avatar image")}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: "https://i.pinimg.com/736x/40/98/2a/40982a8167f0a53dedce3731178f2ef5.jpg",
+              }}
+              className="w-7 ml-3 h-7 rounded-full"
+              resizeMode="cover"
+              onError={() => console.log("Failed to load avatar image")}
+            />
+          )}
         </TouchableOpacity>
       </View>
     </View>

@@ -21,6 +21,7 @@ module.exports = {
     extend: {
       colors: {
         primary: {
+          DEFAULT: "#213448",
           0: "rgb(var(--color-primary-0)/<alpha-value>)",
           50: "rgb(var(--color-primary-50)/<alpha-value>)",
           100: "rgb(var(--color-primary-100)/<alpha-value>)",
@@ -35,6 +36,7 @@ module.exports = {
           950: "rgb(var(--color-primary-950)/<alpha-value>)",
         },
         secondary: {
+          DEFAULT: "#547792",
           0: "rgb(var(--color-secondary-0)/<alpha-value>)",
           50: "rgb(var(--color-secondary-50)/<alpha-value>)",
           100: "rgb(var(--color-secondary-100)/<alpha-value>)",
@@ -49,6 +51,7 @@ module.exports = {
           950: "rgb(var(--color-secondary-950)/<alpha-value>)",
         },
         tertiary: {
+          DEFAULT: "#94B4C1",
           50: "rgb(var(--color-tertiary-50)/<alpha-value>)",
           100: "rgb(var(--color-tertiary-100)/<alpha-value>)",
           200: "rgb(var(--color-tertiary-200)/<alpha-value>)",
@@ -62,6 +65,7 @@ module.exports = {
           950: "rgb(var(--color-tertiary-950)/<alpha-value>)",
         },
         error: {
+          DEFAULT: "#ECEFCA",
           0: "rgb(var(--color-error-0)/<alpha-value>)",
           50: "rgb(var(--color-error-50)/<alpha-value>)",
           100: "rgb(var(--color-error-100)/<alpha-value>)",

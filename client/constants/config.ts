@@ -2,7 +2,7 @@ import { Platform } from "react-native";
 
 export const API_URL =
   Platform.OS !== "android"
-    ? `http://192.168.1.171:5000`
+    ? `http://172.20.10.7:5000`
     : "http://10.0.2.2:5000";
 
 // nếu đang sử dụng nền tảng web hoặc ios thì cần phải thay đổi địa chỉ 192.168.1.xxx tương ứng với IPv4 address hiện tại của máy

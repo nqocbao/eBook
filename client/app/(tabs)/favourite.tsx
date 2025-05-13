@@ -7,18 +7,13 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
   Image,
   Text as RNText,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import Navbar from "../components/navbar";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
-import { SearchIcon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
-import { HStack } from "@/components/ui/hstack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BookCard from "../components/BookCard";
 import { API_URL } from "@/constants/config";
@@ -265,10 +260,6 @@ export default function FavouriteScreen() {
       const favoriteData = await responseFavorite.json();
       const bookIdFavorite = favoriteData.map((item: any) => item.doc_id);
 
-      console.log("Fetched history book IDs: ", bookIdHistory);
-      console.log("Fetched reading book IDs: ", bookIdReading);
-      console.log("Fetched book IDs: ", bookIdFavorite);
-
       const responseBooks = await fetch(`${API_URL}/api/client/books`, {
         method: "GET",
         headers: {
@@ -295,10 +286,6 @@ export default function FavouriteScreen() {
         bookIdFavorite.includes(book._id)
       );
 
-      console.log("Filtered history books:", filteredHistoryBooks);
-      console.log("Filtered reading books:", filteredReadingBooks);
-      console.log("Filtered books:", filteredFavoriteBooks);
-
       // Lưu danh sách sách vào state
       setHistoryBooks(filteredHistoryBooks);
       setReadingBooks(filteredReadingBooks);
@@ -308,28 +295,34 @@ export default function FavouriteScreen() {
     }
   };
 
-  if (isLoggedIn) {
-    useFocusEffect(
-      React.useCallback(() => {
+  useFocusEffect(
+    React.useCallback(() => {
+      if (isLoggedIn) {
         fetchData();
-      }, [])
-    );
-  }
+      }
+    }, [isLoggedIn])
+  );
 
   // Thành phần hiển thị từng cuốn sách
-  const renderBookItem = ({ item }: { item: Book }) => (
+  const renderBookItem = ({
+    item,
+    type,
+  }: {
+    item: Book;
+    type: "favorite" | "history" | "reading";
+  }) => (
     <TouchableOpacity
-      className="w-40 mr-4"
+      className="w-48 mr-4"
       onPress={() => {
         console.log("Xem chi tiết sách...");
         setSelectedBook(item);
         setBookCardVisible(true);
       }}
     >
-      <View className="bg-white rounded-lg overflow-hidden h-72 shadow-md">
+      <View className="bg-white rounded-lg overflow-hidden h-80 shadow-md">
         <Image
           source={{ uri: item.thumbnail }}
-          className="w-full h-56"
+          className="w-full h-64"
           resizeMode="stretch"
           onError={() =>
             console.log(`Không tải được hình ảnh cho ${item.title}`)
@@ -348,6 +341,41 @@ export default function FavouriteScreen() {
           </RNText>
         </VStack>
       </View>
+      <TouchableOpacity
+        className="mt-2 h-14 justify-center bg-green-400 rounded-lg py-2 px-4 items-center"
+        // onPress={() => handleRemoveFavorite(item._id)}
+        onPress={() => {
+          setSelectedBook(item);
+          setBookCardVisible(true);
+        }}
+      >
+        <RNText className="text-white font-bold">Đọc</RNText>
+      </TouchableOpacity>
+      {/* Nút xóa theo từng mục */}
+      {type === "favorite" && (
+        <TouchableOpacity
+          className="mt-2 h-14 justify-center bg-red-500 rounded-lg py-2 px-4 items-center"
+          onPress={() => handleRemoveFavorite(item._id)}
+        >
+          <RNText className="text-white font-bold">Xóa</RNText>
+        </TouchableOpacity>
+      )}
+      {type === "history" && (
+        <TouchableOpacity
+          className="mt-2 h-14 justify-center bg-red-500 rounded-lg py-2 px-4 items-center"
+          onPress={() => handleRemoveHistory(item._id)}
+        >
+          <RNText className="text-white font-bold">Xóa</RNText>
+        </TouchableOpacity>
+      )}
+      {type === "reading" && (
+        <TouchableOpacity
+          className="mt-2 h-14 justify-center bg-red-500 rounded-lg py-2 px-4 items-center"
+          onPress={() => handleRemoveReading(item._id)}
+        >
+          <RNText className="text-white font-bold">Xóa</RNText>
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 
@@ -362,7 +390,7 @@ export default function FavouriteScreen() {
         </RNText>
         <FlatList
           data={historyBooks}
-          renderItem={renderBookItem}
+          renderItem={({ item }) => renderBookItem({ item, type: "history" })}
           keyExtractor={(item) => item._id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -370,6 +398,29 @@ export default function FavouriteScreen() {
         />
       </View>
     );
+  };
+  const handleRemoveHistory = async (bookId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const response = await fetch(
+        `${API_URL}/api/client/history/delete/${bookId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.message === "Xóa lịch sử đọc thành công!") {
+        setHistoryBooks((prev) => prev.filter((book) => book._id !== bookId));
+      } else {
+        alert("Xóa thất bại!");
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra khi xóa khỏi lịch sử!");
+    }
   };
 
   // Thành phần hiển thị danh sách sách đang đọc
@@ -383,7 +434,7 @@ export default function FavouriteScreen() {
         </RNText>
         <FlatList
           data={readingBooks}
-          renderItem={renderBookItem}
+          renderItem={({ item }) => renderBookItem({ item, type: "reading" })}
           keyExtractor={(item) => item._id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -391,6 +442,29 @@ export default function FavouriteScreen() {
         />
       </View>
     );
+  };
+  const handleRemoveReading = async (bookId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const response = await fetch(
+        `${API_URL}/api/client/reading-progress/delete/${bookId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.message === "Xóa document đang đọc thành công!") {
+        setReadingBooks((prev) => prev.filter((book) => book._id !== bookId));
+      } else {
+        alert("Xóa thất bại!");
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra khi xóa khỏi đang đọc!");
+    }
   };
 
   // Thành phần hiển thị danh sách sách yêu thích
@@ -404,7 +478,7 @@ export default function FavouriteScreen() {
         </RNText>
         <FlatList
           data={favoriteBooks}
-          renderItem={renderBookItem}
+          renderItem={({ item }) => renderBookItem({ item, type: "favorite" })}
           keyExtractor={(item) => item._id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -412,6 +486,29 @@ export default function FavouriteScreen() {
         />
       </View>
     );
+  };
+  const handleRemoveFavorite = async (doc_id: string) => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const response = await fetch(
+        `${API_URL}/api/client/favorites/delete/${doc_id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.message === "Xóa document yêu thích thành công!") {
+        setFavoriteBooks((prev) => prev.filter((book) => book._id !== doc_id));
+      } else {
+        alert("Xóa thất bại!");
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra khi xóa khỏi yêu thích!");
+    }
   };
 
   return (
@@ -437,7 +534,7 @@ export default function FavouriteScreen() {
               book={selectBook!}
             />
           )}
-          <View className="h-20" />
+          <View className="h-32" />
         </ScrollView>
       )}
 
@@ -447,7 +544,7 @@ export default function FavouriteScreen() {
             Vui lòng đăng nhập để có trải nghiệm tốt hơn
           </RNText>
           <TouchableOpacity
-            className="bg-blue-500 px-6 py-3 rounded-3xl"
+            className="bg-[#213448] px-6 py-3 rounded-3xl"
             onPress={() => router.push("/auth/login")}
           >
             <RNText className="text-white font-semibold">Đăng nhập</RNText>
